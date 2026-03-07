@@ -82,3 +82,63 @@ const letters = ['a', 'b', 'c', 'd'];
 const result = letters.reduceRight((acc, item) => acc + item, '');
 console.log(result);
 ```
+
+
+### Вывести по 2 элемента массива
+```javascript
+let arr = [1, 2, 3, 4, 5, 6];
+
+// Моё решение
+let arrBit = [];
+for (let i = 0; i < arr.length; i++) {
+    arrBit.push(arr[i])
+    if (arrBit.length === 2) {
+        console.log(arrBit);
+        arrBit = [];
+    }
+}
+
+// slice
+for (let i = 0; i < arr.length; i += 2) {
+    console.log(arr.slice(i, i + 2));
+}
+```
+
+
+### Удалить элементы из массива
+```javascript
+let arr = ["wads", "asda", 213, null,  "asda",  "asda", 444, 22];
+
+// Моё решение
+arr = arr.filter(item => item !== "asda")
+
+// for + splice (цикл идёт с конца, чтобы избежать проблем с изменением индексов при удалении элементов, не пропустить элементы из-за сдвига индексов)
+for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i] === "asda") {
+        arr.splice(i, 1);
+    }
+}
+
+// while + indexOf()
+let index;
+
+while ((index = arr.indexOf("asda")) !== -1) {
+    arr.splice(index, 1);
+}
+```
+
+### Посчитать сумму половины элементов массива
+```javascript
+let arr = [1, 2, 3, 4, 5, 6];
+let mid = Math.floor(arr.length / 2); // Чёткое определение первой половины (для нечетных элементов округление вниз), ceil - округление вверх
+let arrBitSum = arr.slice(0, mid).reduce((acc, item) => acc + item, 0);
+
+
+// Через for
+let sum = 0;
+let mid = Math.floor(arr.length / 2);
+
+for (let i = 0; i < mid; i++) {
+    sum += arr[i];
+}
+```
