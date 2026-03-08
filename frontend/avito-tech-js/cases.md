@@ -142,3 +142,73 @@ for (let i = 0; i < mid; i++) {
     sum += arr[i];
 }
 ```
+
+### Посчитать количество отрицательных чисел
+```javascript
+let arr = [1, 2, -3, 4, 5, 6, -1, -2, -3];
+let result = arr.reduce((acc, item) => item < 0 ? acc += 1 : acc, 0)
+```
+
+### Поделить значения первой части массива на значения второй
+Моё решение
+```javascript
+function divideArrayChunks(arr) {
+    let firstChunkSum = arr.slice(0, Math.floor(arr.length / 2)).reduce((acc, item) => acc + item, 0);
+    let secondChunkSum = arr.slice(Math.floor(arr.length / 2)).reduce((acc, item) => acc + item, 0);
+
+    return firstChunkSum / secondChunkSum;
+};
+
+
+const result = divideArrayChunks([1, 2, 3, 4, 5, 6]);
+
+console.log(
+    result
+);
+```
+
+С вычислением середины
+```javascript
+const divideArrayChunks = arr => {
+    const mid = arr.length >> 1;
+    const sum1 = arr.slice(0, mid).reduce((a, b) => a + b, 0);
+    const sum2 = arr.slice(mid).reduce((a, b) => a + b, 0);
+    return sum2 === 0 ? 0 : sum1 / sum2; // Защита от деления на 0
+};
+```
+
+В одну строку
+```javascript
+const divideArrayChunks = arr => arr.slice(0, arr.length >> 1).reduce((a, b) => a + b, 0) / arr.slice(arr.length >> 1).reduce((a, b) => a + b, 0);
+```
+
+### Удалить предпоследний символ строки
+```javascript
+const removeSecondLast = (str) => str.slice(0, 2) + str.slice(-1)
+```
+
+### Сравнить, начинается ли вторая строка с последнего символа первой строки
+```javascript
+const isSampleWords = (firstString, secondString) => 
+  firstString.at(-1) === secondString.at(0);
+```
+
+### Найти позицию третьего нуля в строке
+```javascript
+const thirdZeroIndex = str => {
+    let index = -1;
+    for (let i = 0; i < 3; i++) {
+        index = str.indexOf('0', index + 1); // Второй параметр - с какого элемента начинаем поиск
+        if (index === -1) return -1
+    }
+    return index;
+}
+```
+
+Через split + filter
+```javascript
+const thirdZeroIndex = str => {
+    const zeros = str.split('').map((char, i) => char === '0' ? i : -1).filter(i => i !== -1);
+    return zeros[2] ?? -1;
+}
+```
