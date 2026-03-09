@@ -212,3 +212,27 @@ const thirdZeroIndex = str => {
     return zeros[2] ?? -1;
 }
 ```
+
+### Найти сумму чисел, разделённых запятой
+```javascript
+const string = '12,34,56';
+
+// Моё решение
+const result = string.split(",").reduce((acc, item) => acc+ +item, 0);
+```
+
+### Преобразовать дату в объект
+```javascript
+const date = '2025-12-31';
+
+/* Деструктуризация */
+const [year, month, day] = date.split('-'); // Создаём 3 переменные `year = '2025'` и тд
+const obj = { year, month, day }; // Объект с сокращённым синтоксисом
+// js автоматически понимает, что эти две строки есть запись `const obj = { year: year, month: month, day: day }`
+
+/* Моё решение */
+const arrDate = date.split('-');
+const params = ['year', 'month', 'day']
+const obj = new Object;
+for (let i = 0; i < params.length; i++) obj[`${params[i]}`] = arrDate[i];
+```
