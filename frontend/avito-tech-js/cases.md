@@ -236,3 +236,39 @@ const params = ['year', 'month', 'day']
 const obj = new Object;
 for (let i = 0; i < params.length; i++) obj[`${params[i]}`] = arrDate[i];
 ```
+
+
+### Дана некоторая строка с буквами и цифрами. Получите позицию первой цифры в этой строке.
+search + регулярное выражение
+```javascript
+const getNumberIndex = str => str.search(/\d/);
+```
+
+findIndex() + test()
+```javascript
+const getNumberIndex = str => 
+    [...str].findIndex(char => /\d/.test(char));
+```
+
+match() + регулярное выражение
+```javascript
+const getNumberIndex = str => {
+    const match = str.match(/\d/);
+    return match ? str.indexOf(match[0]) : -1;
+}
+```
+
+
+
+Моё решение
+```javascript
+const getNumberIndex = str => {
+  for (let i = 0; i < str.length; i++) {
+    if (!Number.isNaN(+str[i])) return i;
+  }
+  return -1; // явный возврат при отсутствии цифры
+};
+
+const result = getNumberIndex('a2bcde2edf23ws');
+console.log(result);
+```
