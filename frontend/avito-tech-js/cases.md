@@ -272,3 +272,127 @@ const getNumberIndex = str => {
 const result = getNumberIndex('a2bcde2edf23ws');
 console.log(result);
 ```
+
+
+### Дан объект с ключами и значениями. Запишите в первый массив ключи объекта, а во второй - значения.
+Использование `Object.keys()` + `Object.values()`
+```javascript
+const obj = {
+    name: 'Igor',
+    surname: 'Tvar',
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+};
+
+const keys = Object.keys(obj);
+const values = Object.values(obj);
+```
+
+Использование `Object.entries()` + `reduce`
+```javascript
+const { keys, values } = Object.entries(obj).reduce(
+    (acc, [key, value]) => {
+        acc.keys.push(key);
+        acc.values.push(value);
+        return acc;
+    },
+    {keys: [], values: [] }
+)
+```
+
+Используя map
+```javascript
+const keys = Object.keys(obj);
+const values = keys.map(key => obj[key]);
+```
+
+Использование деструктуризации
+```javascript
+for (const [key, value] of Object.entries(obj)) {
+    keys.push(key);
+    values.push(value);
+}
+```
+
+
+Моё решение
+```javascript
+const keys = [];
+const values = [];
+
+for (let entry of Object.entries(obj)) {
+    keys.push(entry[0]);
+    values.push(entry[1]);
+}
+
+console.log('keys :>> ', keys);
+console.log('values :>> ', values);
+```
+
+
+### Дано число. Выведите в консоль количество четных цифр в этом числе.
+Через `for...of`
+```javascript
+const number = 13239545;
+const str = String(number);
+let count = 0;
+
+for (const char of str) {
+    if (!isNaN(char) && Number(char) % 2 === 0) count++
+}
+```
+
+Через `filter()` + `length` (лучший вариант)
+```javascript
+const number = 13239545;
+const result = String(number)
+    .match(/\d/g)
+    .filter(digit => Number(digit) % 2 === 0)
+    .length;
+
+console.log(result);
+```
+
+Через `reduce` + `match`
+```javascript
+const number = 13239545;
+
+const result = String(number)
+    .match(/\d/g)
+    .reduce((acc, digit) => acc + (Number(digit) % 2 === 0 ? 1 : 0), 0);
+```
+
+Математический способ
+```javascript
+const number = 13239545;
+let n = Math.abs(number); // Убираем знак минус
+let count = 0;
+
+while (n > 0) {
+    const digit = n % 10; // Получаем последнюю цифру
+    if (digit % 2 === 0) count ++
+    n = Math.floor(n / 10); // Убираем последнюю цифру
+}
+```
+
+
+Моё решение
+```javascript
+const number = 13239545;
+const result = String(number).split("").reduce((acc, item) => +item % 2 === 0 ? acc += 1 : acc, 0);
+
+console.log(result);
+```
+
+Мой исправленный вариант
+```javascript
+const number = 13239545;
+const result = String(number)
+  .split("")
+  .reduce((acc, item) => {
+    const digit = Number(item);
+    return !isNaN(digit) && digit % 2 === 0 ? acc + 1 : acc;
+  }, 0);
+```
