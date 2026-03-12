@@ -396,3 +396,67 @@ const result = String(number)
     return !isNaN(digit) && digit % 2 === 0 ? acc + 1 : acc;
   }, 0);
 ```
+
+
+### Разбить текст на строки
+```javascript
+const sentences = ["Hello world", "JavaScript is fun"];
+
+const words = sentences.flatMap(sentence => sentence.split(" "));
+console.log(words); // ["Hello", "world", "JavaScript", "is", "fun"]
+```
+
+### Перевестив верхний регистр нечётные буквы строки
+reduce
+```javascript
+const str = 'abcde';
+const arr = str.split("");
+
+const result = arr.reduce((acc, item, index) => {
+    return acc + (index % 2 === 0 ? item.toUpperCase() : item);
+}, '');
+
+
+console.log(result);
+```
+
+Моё решение
+```javascript
+const str = 'abcde';
+const result = str.split("").map((item, index) => index % 2 === 0 ? item.toUpperCase() : item).join("");
+```
+
+forEach
+```javascript
+const str = 'abcde';
+const arr = str.split("");
+
+arr.forEach((item, index) => {
+    if (index % 2 === 0) {
+        arr[index] = item.toUpperCase()
+    }
+});
+
+const result = arr.join("");
+console.log(result);
+```
+
+Через регулярное выражение
+```javascript
+const result = str.replace(/(.)(.)/g, (match, p1, p2) => p1.toUpperCase() + p2)
+
+/* 
+. - любой символ (кроме переноса строки)
+() - захватыващие группы (сохраняют найденные символы, чтобы использовать их позже)
+Первый (.) захватывает первый символ пары
+Вторая (.) захватывает второй символ пары
+g - флаг global (глобальный) - говорит двигателю искать все совпадения в строке, а не только первое.
+Для 'abcde' найдётся 'ab' и 'cd'.
+
+match - вся найденная подстрока ('ab', например)
+p1 - содержимое первой группы (первый символ, 'a')
+p2 - содержимое второй группы (второй символ, 'b')
+
+p1.toUpperCase() + p2 - берём первый символ пары, делаем его заглавным, и добавляем второй символ как есть.
+*/
+```

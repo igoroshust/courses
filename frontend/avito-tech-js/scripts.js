@@ -1,11 +1,5 @@
-const number = 13239545;
-const str = String(number);
-let count = 0;
+const str = 'abcde';
 
-for (const char of str) {
-    if (!isNaN(char) && Number(char) % 2 === 0) {
-        count++;
-    }
-}
+const result = str.replace(/(.)(.)/g, (match, p1, p2) => p1.toUpperCase() + p2)
 
-console.log(count);
+console.log(result);
