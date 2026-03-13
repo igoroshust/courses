@@ -460,3 +460,65 @@ p2 - содержимое второй группы (второй символ, 
 p1.toUpperCase() + p2 - берём первый символ пары, делаем его заглавным, и добавляем второй символ как есть.
 */
 ```
+
+
+### Капитализация каждого слова в строке
+Лучшее решение
+```javascript
+// Лучший вариант по читаемости и производительности
+const capitalizeWords = (str) => 
+  str.split(' ')
+     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+     .join(' ');
+
+console.log(capitalizeWords('aaa bbb ccc')); // "Aaa Bbb Ccc"
+```
+
+Через `map()` + `join()`
+```javascript
+let string = 'aaa bbb ccc';
+let result = string
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+```
+
+Моё решение
+```javascript
+let string = 'aaa bbb ccc';
+let result = string.split(" ").reduce((acc, item) => acc + (item.charAt(0).toUpperCase() + item.slice(1) + ' '), '').trim();
+```
+
+Через replace
+```javascript
+let string = 'aaa bbb ccc';
+let result = string.replace(/\b\w/g, l => l.toUpperCase());
+
+// \b\w - границы слова + любая буква
+```
+
+
+Через forEach
+```javascript
+let string = 'aaa bbb ccc';
+let words = string.split(' ');
+let result = '';
+
+words.forEach(word => {
+    result += word.charAt(0).toUpperCase() + word.slice(1) + ' ';
+});
+
+result = result.trim();
+```
+
+Через for
+```javascript
+let string = 'aaa bbb ccc';
+let words = string.split(' ');
+let result = '';
+
+for (let i = 0; i < words.length; i++) {
+    result += words[i].charAt(0).toUpperCase() + words[i].slice(1);
+    if (i < words.length - 1) result += ' ';
+}
+```
