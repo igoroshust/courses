@@ -522,3 +522,82 @@ for (let i = 0; i < words.length; i++) {
     if (i < words.length - 1) result += ' ';
 }
 ```
+
+### Вернуть массив индексов '0'
+Моё решение
+```javascript
+const string = '023m0df0dfg0';
+const result = string.split("").reduce((acc, item, index) => item === '0' ? acc.concat(index) : acc, []);
+```
+
+### Удалить каждый третий символ в строке
+```javascript
+let str = 'abcdefg';
+let formattedString = '';
+
+for (let i = 0; i < str.length; i += 3) formattedString += str.slice(i, i + 2);
+
+console.log('formattedString :>> ', formattedString);
+```
+
+### Поделить сумму чётных элементов на нечётные
+`reduce`
+```javascript
+const arr = [1, 2, 3, 4, 5, 6];
+
+const strangeFunction = array => {
+    const { evenSum, oddSum } = array.reduce((acc, num) => {
+        if (num % 2) === 0 {
+            acc.evenSum += num;
+        } else {
+            acc.oddSum += num;
+        }
+        return acc;
+    }, { evenSum: 0, oddSum: 0 });
+
+    if (oddSum === 0) throw new Error('Деление на ноль!');
+    return evenSum / oddSum;
+}
+
+console.log(strangeFunction(arr)); // 6/15 = 0.4 (правильно!)
+```
+
+Тернарный оператор в reduce (компактно)
+```javascript
+const arr = [1, 2, 3, 4, 5, 6];
+
+const strangeFunction = array => {
+    const { evenSum, oddSum } = array.reduce((acc, num) => ({
+        evenSum: acc.evenSum + (num % 2 === 0 ? num : 0),
+        oddSum: acc.oddSum + (num % 2 === 0 ? num : 0),
+    }, { evenSum: 0, oddSum: 0 });
+
+    return oddSum ? evenSum / oddSum : Infinity;
+```
+
+Функциональный стиль с filter/map
+```javascript
+const strangeFunction = array => {
+    const evenSum = array.filter(n => n % 2 === 0).reduce((a, b) => a + b, 0);
+    const oddSum = array.filter(n => n % 2 !== 0).reduce((a, b) => a + b, 0);
+    
+    return oddSum ? evenSum / oddSum : Infinity;
+};
+```
+
+
+Моё решение
+```javascript
+const arr = [1, 2, 3, 4, 5, 6];
+
+const strangeFunction = array => {
+    let evenNumbers=0;
+    let oddNumbers=0;
+
+    array.forEach(item => item % 2 === 0 ? evenNumbers += item : oddNumbers += item);
+    return parseFloat((evenNumbers / oddNumbers).toFixed(2));
+}
+
+const result = strangeFunction(arr);
+console.log(typeof result);
+```
