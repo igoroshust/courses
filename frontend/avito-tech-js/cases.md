@@ -601,3 +601,58 @@ const strangeFunction = array => {
 const result = strangeFunction(arr);
 console.log(typeof result);
 ```
+
+### Дана некоторая строка с буквами и цифрами. Получите массив позиций всех цифр из этой строки.
+`for...of` (самое быстрое, 12ms)
+```javascript
+const str = 'abc23sd543lcsdf32';
+const result = [];
+for (let i = 0; i < str.length; i++) {
+    if (/\d/.test(str[i])) result.push(i)
+}
+```
+
+`reduce + push`
+```javascript
+const str = 'abc23sd543lcsdf32';
+
+const result = str.split('').reduce((acc, item, index) => Number.isInteger(+item) ? (acc.push(index), acc) : acc, []); // запятая-оператор возвращает последнее значение
+
+console.log(result);
+```
+
+`matchAll + flatMap`
+```javascript
+const str = 'abc23sd543lcsdf32';
+
+const result = [...str.matchAll(/\d/g)].flatMap(match => match.index);
+
+console.log(result);
+```
+
+`Array.from + условие`
+```javascript
+const str = 'abc23sd543lcsdf32';
+
+const result = Array.from(str, (_, i) => i).filter(i => /\d/.test(str[i]));
+
+console.log(result);
+```
+
+`replace + callback`
+```javascript
+const str = 'abc23sd543lcsdf32';
+
+str.replace(/\d/g, (match, offset) => {
+    result.push(offset);
+    return match;
+});
+```
+
+
+Моё решение
+```javascript
+const str = 'abc23sd543lcsdf32';
+
+const result = str.split("").reduce((acc, item, index) => Number.isInteger(+item) ? acc.concat(index): acc, []);
+```
