@@ -649,10 +649,73 @@ str.replace(/\d/g, (match, offset) => {
 });
 ```
 
-
 Моё решение
 ```javascript
 const str = 'abc23sd543lcsdf32';
 
 const result = str.split("").reduce((acc, item, index) => Number.isInteger(+item) ? acc.concat(index): acc, []);
+```
+
+### Развернуть элементы внутри массива
+Функциональный стиль (самый производительный)
+```javascript
+const arr = [123, 456, 789];
+const result = arr.map(num => String(num).split('').reverse().join(''))
+```
+
+map (на втором месте по производительности)
+```javascript
+const arr = [123, 456, 789];
+const result = arr.map(n => +[...String(n)].reverse().join(''));
+```
+
+С математическим реверсом (без строк)
+```javascript
+const arr = [123, 456, 789];
+
+const reverseNum = num => {
+    let reversed = 0;
+    while (num > 0) {
+        reversed = reversed * 10 + num % 10; // iter-1: 3, iter-2: 32, iter-3: 321, iter-4: 6, iter-5: 65, iter-6: 654,
+        console.log('reversed :>> ', reversed);
+        num = Math.floor(num / 10); // iter-1: 12, iter-2: 1, iter-3: 0, iter-4: 45, iter-5: 4, iter-6: 0
+        console.log('num :>> ', num);
+    }
+    return reversed;
+};
+
+const result = arr.map(reverseNum);
+
+console.log('result :>> ', result);
+```
+
+Моё решение
+```javascript
+const arr = [123, 456, 789];
+const result = arr.reduce((acc, item) => (acc.push(+String(item).split("").reverse().join("")), acc), []);
+```
+
+Array.from
+```javascript
+const arr = [123, 456, 789];
+const result = arr.map(num => Array.from(String(num), Number)
+    .reverse()
+    .join('')
+);
+```
+
+С отрицательными числами
+```javascript
+const arr = [123, 456, 789];
+
+const reverseNum = num => {
+    const sign = Math.sign(num) // возвращает знак числа (1 или -1)
+    const absNum = Math.abs(num); // число без знака
+    const reversed = String(absNum) // "321"
+        .split('').reverse().join('');
+    return sign * Number(reversed); // -321 или 321
+};
+
+console.log(reverseNum(123));  // 321
+console.log(reverseNum(-123)); // -321
 ```
