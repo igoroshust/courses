@@ -719,3 +719,160 @@ const reverseNum = num => {
 console.log(reverseNum(123));  // 321
 console.log(reverseNum(-123)); // -321
 ```
+
+
+
+
+
+
+
+
+### Отделить тройки значений в строковом ряду
+Лучшее решение
+```javascript
+const str = "123456782346524132"; // 1 234 567
+
+const formatSpecial = (str) => 
+    str.length ? [str[0], ...str.slice(1).match(/.{1,3}/g)].join(' ').trim() : '';
+
+console.log(formatSpecial("123456789"));  // "1 234 456 789" ✅
+```
+
+Моё решение
+```javascript
+const str = "123456782346524132"; // 1 234 567
+
+let resultString = [];
+
+for (let i = 0; i < str.length; i += 3) {
+    resultString += str[i] + " " + str.slice(i+1, i + 3);
+  console.log(resultString);
+}
+
+console.log("resultString :>> ", resultString);
+```
+
+Исправленное моё решение
+```javascript
+const str = "123456789";
+let resultString = str[0];  // первый символ отдельно
+
+for (let i = 1; i < str.length; i += 3) {
+    if (i > 0) resultString += " ";  // пробел только между группами
+    resultString += str.slice(i, i + 3);
+}
+
+console.log(resultString);  // "1 234 456 789" ✅
+```
+
+match + join
+```javascript
+const str = "123456789";
+const result = [str[0], ...str.slice(1).match(/.{1,3}/g)].join(' ').trim();
+console.log(result);  // "1 234 456 789" ✅
+```
+
+Регулярное выражение
+```javascript
+const str = "123456789";
+const result = str.replace(/^(.)(.{3})*(.*)$/, '$1 $2$3').trim();
+console.log(result);  // "1 234 456 789" ✅
+```
+
+Однострочный regex
+```javascript
+const formatSpecial = (str) => str.replace(/(.)(.{3})*/g, (m, first) => first + (m.slice(1).match(/.{3}/g)?.join(' ') || ''));
+```
+
+Универсальная функция
+```javascript
+const str = "123456782346524132"; // 1 234 567
+
+const formatSpecial = (str) => {
+    if (str.length === 0) return '';
+    
+    const first = str[0];
+    const rest = str.slice(1).match(/.{1,3}/g) || [];
+    return [first, ...rest].join(' ').trim();
+};
+
+console.log(formatSpecial("123456789"));  // "1 234 456 789"
+console.log(formatSpecial("1234567"));    // "1 234 567"
+console.log(formatSpecial("12345"));      // "1 234 5"
+console.log(formatSpecial("123"));        // "1 23"
+console.log(formatSpecial("12"));         // "1 2"
+console.log(formatSpecial("1"));          // "1"
+```
+
+
+### Изменить регистр каждой буквы строки на противоположный
+
+Моё решение
+```javascript
+const str = 'AbCdE';
+
+const reverseRegister = str.split("").reduce((acc, item) => item === item.toUpperCase() ? acc + item.toLowerCase() : acc + item.toUpperCase(), '');
+```
+
+map
+```javascript
+const reverseRegister = str
+  .split('')
+  .map(char => 
+    char === char.toUpperCase() 
+      ? char.toLowerCase() 
+      : char.toUpperCase()
+  )
+  .join('');
+
+console.log(reverseRegister); // 'aBcDe'
+```
+
+Регулярное выражение
+```javascript
+const reverseRegister = str
+    .replace(/[a-z]/g, c => c.toUpperCase())
+    .replace(/[A-Z]/g, c => c.toLowerCase());
+
+console.log(reverseRegister);
+```
+
+
+### Слепить пары чисел массива вместе
+forEach
+```javascript
+const numbers = [1, 2, 3, 4, 5, 6];
+const result = [];
+
+numbers.forEach((item, index) => {
+  if (index % 2 === 0) {
+    result.push(String(item));
+  } else {
+    result[result.length - 1] += String(item);
+  }
+});
+
+console.log('result :>> ', result); // ['12', '34', '56']
+```
+
+Моё решение
+```javascript
+const numbers = [1, 2, 3, 4, 5, 6];
+
+const result = numbers.reduce((acc, item, index) => index % 2 === 0 ? (acc.push(String(item)), acc) : (acc[acc.length-1] += String(item), acc), []).map(Number);
+
+console.log('result :>> ', result);
+```
+
+Через for
+```javascript
+const numbers = [1, 2, 3, 4, 5, 6];
+
+const result = [];
+for (let i = 0; i < numbers.length; i += 2) {
+  const pair = String(numbers[i]) + (numbers[i + 1] !== undefined ? String(numbers[i + 1]) : '');
+  result.push(pair);
+}
+
+console.log('result :>> ', result); // ['12', '34', '56']
+```
