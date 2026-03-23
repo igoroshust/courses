@@ -1,5 +1,8 @@
-const numbers = [1, 2, 3, 4, 5, 6];
+const str = 'aaa bbb ccc eee fff';
 
-const result = numbers.reduce((acc, item, index) => index % 2 === 0 ? (acc.push(String(item)), acc) : (acc[acc.length-1] += String(item), acc), []).map(Number);
+const result = str.replace(
+  /\b([a-z])([a-z]+)(?=\s+\w+\b)/g,
+  (match, first, rest) => first.toUpperCase() + rest
+);
 
 console.log('result :>> ', result);

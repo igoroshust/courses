@@ -876,3 +876,50 @@ for (let i = 0; i < numbers.length; i += 2) {
 
 console.log('result :>> ', result); // ['12', '34', '56']
 ```
+
+
+## Заменить в строке первую букву каждого второго слова на заглавную
+
+Моё решение с map
+```javascript
+const str = 'aaa bbb ccc eee fff';
+
+const result = str.split(" ");
+
+const transformRegister = string => result.reduce((acc, item, index) => index % 2 === 0 ? (acc.push(item),acc) : (acc.push(item[0].toUpperCase() + item.slice(1)), acc),[]).join(" ")
+
+console.log(
+    transformRegister(str)
+);
+
+// map эффективнее, поскольку создаёт новый массив за один проход, зная его длину (равна длине исходного массива)
+// + внутренняя реализация оптимизирована специально для преобразования элементов
+// + меньше операций на итерацию
+```
+
+Моё решение c reduce
+```javascript
+const str = 'aaa bbb ccc eee fff';
+
+const result = str.split(" ");
+
+const transformRegister = string => result.reduce((acc, item, index) => index % 2 === 0 ? (acc.push(item),acc) : (acc.push(item[0].toUpperCase() + item.slice(1)), acc),[]).join(" ")
+
+console.log(
+    transformRegister(str)
+);
+```
+
+for...of с индексом
+```javascript
+const str = 'aaa bbb ccc eee fff';
+
+const words = str.split(' ');
+const result = [];
+
+for (let [i, word] of words.entries()) {
+    result.push(i % 2 === 0 ? word : word[0].toUpperCase() + word.slice(1));
+}
+
+console.log(result.join(' '));
+```
