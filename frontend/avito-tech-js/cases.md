@@ -923,3 +923,48 @@ for (let [i, word] of words.entries()) {
 
 console.log(result.join(' '));
 ```
+
+## Перевести в верхний регистр элементы списка с количеством букв меньше или равно 3
+С обработкой edge-кейсов (производственный код)
+```javascript
+const str = 'a bc def ghij';
+
+const upperCaseShortWords = string => {
+  return string
+    .trim()
+    .split(/\s+/)
+    .map(word => word.length <= 3 ? word.toUpperCase() : word)
+    .filter(Boolean) // убираем пустые строки
+    .join(' ');
+}
+
+console.log('upperCaseShortWords :>> ', upperCaseShortWords(str));
+
+// \s - любой пробельный символ (пробел, таб, перенос строки \n, \r)
+// + - 1 или более подряд
+```
+
+
+Моё решение
+```javascript
+const str = 'a bc def ghij';
+
+const result = str
+  .split(' ')
+  .map(item => item.length <= 3 ? item.toUpperCase() : item)
+  .join(' ');
+
+console.log('result :>> ', result);
+```
+
+Регулярные выражения
+```javascript
+const str = 'a bc def ghij  i j k lmno';
+const result = str.replace(/\b\w{1,3}\b/g, match => match.toUpperCase());
+console.log(result); // "A BC DEF GHIJ  I J K LMNO"
+
+//    ├─ \b           - граница слова (начало/конец слова)
+//    ├─ \w{1,3}      - 1-3 буквы/цифры/подчёркивания
+//    ├─ \b           - граница слова
+//    └─ g            - глобальный флаг (все совпадения)
+```
