@@ -968,3 +968,38 @@ console.log(result); // "A BC DEF GHIJ  I J K LMNO"
 //    ├─ \b           - граница слова
 //    └─ g            - глобальный флаг (все совпадения)
 ```
+
+
+## Отсортировать массив объектов по свойству age
+Мутабельный вариант
+```javascript
+/* Напишите функцию, которая принимает массив объектов и сортирует его по возрастанию значения свойства “age” */
+
+const objectsArr = [
+  {
+    name: 'Igor',
+    age: 29,
+  },
+  {
+    name: 'Egor',
+    age: 19,
+  },
+  {
+    name: 'Gregor',
+    age: 39,
+  },
+];
+
+function sortByAge(arr) {
+    return arr.sort((a, b) => a.age - b.age);
+}
+
+console.log('sortByAge(objectsArr) :>> ', sortByAge(objectsArr));
+```
+
+Иммутабельный вариант
+```javascript
+function sortByAge(arr) {
+    return [...arr].sort((a, b) => a.age - b.age); // Новый массив
+}
+```
