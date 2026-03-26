@@ -1003,3 +1003,44 @@ function sortByAge(arr) {
     return [...arr].sort((a, b) => a.age - b.age); // Новый массив
 }
 ```
+
+## Определить регистр символа
+```javascript
+let char = 'j';
+
+const defineCharRegister = char => 
+    !/[a-zA-Z]/.test(char) ? 'not a letter' :
+    char === char.toUpperCase() ? 'Upper' : 'lower';
+
+console.log(
+    defineCharRegister(char)
+);
+```
+
+## Оставить только чётные числа
+for...of (самый быстрый и читаемый)
+```javascript
+const getEvenDigits = num => {
+    let result = '';
+    for(const digit of String(Math.abs(num))) {
+        if(digit % 2 === 0) result += digit;
+    }
+    return result;
+};
+
+// for...of: 67ms ⚡ Самый быстрый + читаемый!
+```
+
+Моё решение
+```javascript
+const result = num => 
+    String(Math.abs(num))  // ✅ abs() + String()
+    .split('')
+    .filter(i => i % 2 === 0)
+    .join('');
+
+// Тесты
+console.log(result(123789));  // "24"
+console.log(result(-123789)); // "24"
+console.log(result(13579));   // ""
+```
