@@ -1044,3 +1044,57 @@ console.log(result(123789));  // "24"
 console.log(result(-123789)); // "24"
 console.log(result(13579));   // ""
 ```
+
+## Проверить, что в строке не более 2 символов в верхнем регистре
+`match` - Самый производительный вариант
+```javascript
+const isCheck = str => (str.match(/[A-Z]/g) || []).length >= 2;
+```
+
+`for...of` (читаемость + быстрота)
+```javascript
+const isCheck = str => {
+    let count = 0;
+    for (const char of str) {
+        if (char === char.toUpperCase()) {
+            if (++count >= 2) return true;
+        }
+    }
+    return false;
+}
+```
+
+Современный способ
+```javascript
+const isCheck = str => Array.from(str, c => c.toUpperCase()).filter(
+    (c, i) => c === str[i]
+).length >= 2;
+```
+
+One-liner c reduce
+```javascript
+const isCheck = str => [...str].reduce((count, char) => 
+    char === char.toUpperCase() ? count + 1 : count, 0
+) >= 2;
+```
+
+Моё решение 
+```javascript
+let string = 'saofjJD';
+
+const isCheck = string => {
+    let count = 0;
+    let i = 0;
+    
+    while (i < string.length) {
+        if (string[i] === string[i].toUpperCase()) count++;
+        i++;
+        if (count >= 2) return true;
+    }
+    return false;
+}
+
+console.log(
+    isCheck(string)
+);
+```
