@@ -1098,3 +1098,48 @@ console.log(
     isCheck(string)
 );
 ```
+
+### Удалите из строки все подстроки, в которых количество символов больше трех
+
+Моё решение
+```javascript
+let string = '1 22 333 4444 22 5555 1';
+const result = string.split(' ').filter(i => i.length <= 3).join(' ')
+
+console.log(
+    result
+);
+```
+
+Цикл for + массив 
+```javascript
+let string = '1 22 333 4444 22 5555 1';
+const words = string.split(' ');
+const result = [];
+
+for (let word of words) {
+  if (word.length <= 3) {
+    result.push(word);
+  }
+}
+console.log(result.join(' ')); // "1 22 333 22 1"
+```
+
+Регулярное выражение + нормализация пробелов
+```javascript
+let string = '1 22 333 4444 22 5555 1';
+const result = string
+  .replace(/\b\w{4,}\b/g, '')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+console.log(result); // "1 22 333 22 1"
+```
+
+regex + match
+```javascript
+let string = '1 22 333 4444 22 5555 1';
+const result = string.match(/\b\w{1,3}\b/g)?.join(' ') || '';
+
+console.log(result); // "1 22 333 22 1"
+```
