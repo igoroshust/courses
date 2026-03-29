@@ -1143,3 +1143,79 @@ const result = string.match(/\b\w{1,3}\b/g)?.join(' ') || '';
 
 console.log(result); // "1 22 333 22 1"
 ```
+
+
+## Даны два массива. Слейте их в один следующим образом: [1, 2, 'a', 'b', 'c', 3]
+
+slice + spread (самый производительный)
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+const mergeArrays = (arr1, arr2, insertIndex = 2) => [
+    ...arr1.slice(0, insertIndex), 
+    ...arr2, 
+    ...arr1.slice(insertIndex)
+];
+
+const result = mergeArrays(arr1, arr2); // [1, 2, 'a', 'b', 'c', 3]
+```
+
+splice
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+arr1.splice(2, 0, ...arr2); // [ 1, 2, 'a', 'b', 'c', 3 ]
+```
+
+Моё решение
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+const strangeFunction = (arr1, arr2) => {
+    let combined = [...arr1, ...arr2];
+
+    const findElement = combined.splice(2, 1);
+    combined.push(...findElement)
+
+    return combined
+}
+
+const result = strangeFunction(arr1, arr2);
+```
+
+slice + concat
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+const result = [...arr1.slice(0, 2), ...arr2, ...arr1.slice(2)];
+// [1, 2, 'a', 'b', 'c', 3]
+```
+
+
+reduce
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+const result = arr1.reduce((acc, curr, i) => {
+    if (i === 2) acc.push(...arr2);
+    acc.push(curr);
+    return acc;
+}, []);
+// [1, 2, 'a', 'b', 'c', 3]
+```
+
+map + условие
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = ['a', 'b', 'c'];
+
+const result = arr1.map((item, i) => 
+    i === 2 ? [...arr2, item] : item
+).flat();
+// [1, 2, 'a', 'b', 'c', 3]
+```
