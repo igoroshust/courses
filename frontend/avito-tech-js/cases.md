@@ -1219,3 +1219,84 @@ const result = arr1.map((item, i) =>
 ).flat();
 // [1, 2, 'a', 'b', 'c', 3]
 ```
+
+
+## Найти сумму пар элементов числа 123456 (12 + 34 + 56)
+Оптимальный по времени и дополнительной памяти (O(n) время, O(1) доп. память (кроме строки)) -  ~0.05ms
+```javascript
+let number = 123456; 
+
+const sumDigitPairs = (num) => {
+    const str = String(Math.abs(num));
+    let sum = 0;
+
+    for (let i = 0; i < str.length; i += 2) {
+        const pair = +str.slice(i, i + 2) || 0;
+        sum += pair;
+    }
+
+    return sum;
+}
+
+
+const result = sumDigitPairs(number);
+
+console.log(result);
+```
+
+Математический способ (Работает с очень большими числами, минимум памяти) - ~0.03ms
+```javascript
+let number = 123456; 
+
+const sumDigitPairs = (num) => {
+    let sum = 0;
+    let reminder;
+
+    while (num > 0) {
+        reminder = num % 100; // 56
+        sum += reminder;
+        num = Math.floor(num / 100); // 1234
+    }
+    return sum;
+}
+
+const result = sumDigitPairs(number);
+
+console.log(result);
+```
+
+
+Моё решение -  ~0.1ms
+```javascript
+let number = 123456; 
+
+const pairSum = num => {
+    let sum = 0;
+    let stringNumber = String(number);
+
+    for (let i = 0; i < stringNumber.length; i += 2) {
+        sum += +stringNumber.slice(i, i + 2);
+    }
+
+    return sum;
+}
+
+const result = pairSum(number);
+
+console.log(result);
+```
+
+Функциональный стиль
+```javascript
+let number = 123456; 
+
+const sumDigitPairs = (num) => 
+    String(num)
+        .match(/.{1,2}/g) // ['12', '34', '56']
+        ?.reduce((acc, pair) => acc + +pair, 0) ?? 0;
+
+
+const result = sumDigitPairs(number);
+
+console.log(result);
+```
