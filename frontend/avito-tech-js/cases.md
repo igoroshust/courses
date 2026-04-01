@@ -1300,3 +1300,71 @@ const result = sumDigitPairs(number);
 
 console.log(result);
 ```
+
+
+## Вывести элементы массива в обратном порядке
+Классический цикл for
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+const reverseArray = array => {
+    const resultArray = [];
+    for (let i = array.length - 1; i >= 0; i--) resultArray.push(array[i])
+    return resultArray;
+}
+
+console.log(reverseArray(arr)); // [5, 4, 3, 2, 1]
+```
+
+Встроенный метод reverse
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+const reverseArray = array => [...array].reverse() // [...array] создаёт копию
+console.log(reverseArray(arr)); // [5, 4, 3, 2, 1]
+```
+
+Однострочник
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+console.log(arr.toReversed());
+```
+
+slice + reverse
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+const reverseArray = array => array.slice().reverse()
+console.log(reverseArray(arr)); // [5, 4, 3, 2, 1]
+```
+
+unshift
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+const reverseArray = array => {
+    const resultArray = [];
+    for (let i = 0; i < array.length; i++) result.unshift(array[i]);
+    return resultArray;
+}
+```
+
+
+
+Моё решение
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+const reverseArray = array => {
+    const resultArray = []
+
+    for (let i = -1; i >= -arr.length; i--) {
+    resultArray.push(array.at(i))
+    } 
+    
+    return resultArray;
+}
+
+console.log(reverseArray(arr));
+```
