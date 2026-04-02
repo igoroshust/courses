@@ -1368,3 +1368,108 @@ const reverseArray = array => {
 
 console.log(reverseArray(arr));
 ```
+
+
+## Проверить, что в строке не более 3 букв
+
+Регулярное выражение
+```javascript
+let str = 'ad33424234e'
+
+const hasNoMoreThanThreeLetters = string => (/[a-zA-Z]/g).test(string) ? (string.match(/[a-zA-Z]/g) || []).length <= 3 : true;
+
+console.log(hasNoMoreThanThreeLetters('ad33424234e')); // false (4 буквы)
+console.log(hasNoMoreThanThreeLetters('12345')); // true
+console.log(hasNoMoreThanThreeLetters('abc123')); // true (3 буквы)
+```
+
+match() + length
+```javascript
+const hasNoMoreThanThreeLetters = string => (string.match(/[a-zA-Z]/gi) || []).length <= 3;
+```
+
+Поддержка кириллицы
+```javascript
+let str = 'aDDDDd33424234e'
+
+const hasNoMoreThanThreeLetters = str => 
+    (str.match(/[a-zA-Zа-яё]/gi) || []).length <= 3;
+
+```
+
+filter
+```javascript
+let str = 'aDDDDd33424234e'
+
+const hasNoMoreThanThreeLetters = string => string.split('').filter(char => /[a-zA-Z]/.test(char)).length <= 3;
+
+console.log(hasNoMoreThanThreeLetters('DDD33424234')); // false (4 буквы)
+console.log(hasNoMoreThanThreeLetters('12345')); // true
+console.log(hasNoMoreThanThreeLetters('abc123')); // true (3 буквы)
+```
+
+
+Моё решение
+```javascript
+let str = 'ad33424234e'
+
+const isLteThreeWords = string => {
+    let count = 0;
+    for (let i = 0; i < str.length; i++) {
+        if (string[i].charCodeAt() >= 65 && string[i].charCodeAt() <= 122) count++;
+        if (count === 3) return true;
+    }
+    return false;
+};
+
+const result = isLteThreeWords(str);
+console.log('result :>> ', result);
+
+// A-Я 1040-1071
+// а-я 1072-1103
+
+// A-z 65-122
+
+// console.log(Math.floor(Math.random(65, 122) * 10));
+```
+
+Моё решение через reduce
+```javascript
+const result = str.split('').reduce((acc, item) => {
+    if (item.charCodeAt() >= 65 && item.charCodeAt() <= 122) {
+        acc += item;
+        if (acc.length >= 3) return true
+    } 
+    return false;
+}, '');
+
+console.log('result :>> ', result);
+```
+
+
+## Функция-генератор случайных чисел (включая границы)
+```javascript
+const randomIntInclusive = (min, max) => 
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+console.log(randomIntInclusive(65, 122)); // 65-122
+console.log(randomIntInclusive(1, 6));    // 1-6 (кости)
+```
+
+## Функции-утилиты для генерации случайных данных разных типов
+
+```javascript
+// Универсальная функция
+const random = {
+    int: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+    float: (min, max) => Math.random() * (max - min) + min,
+    choice: arr => arr[random.int(0, arr.length - 1)],
+    char: (min, max) => String.fromCharCode(random.int(min, max))
+};
+
+// Использование
+console.log(random.int(1, 100));     // 42
+console.log(random.float(1.5, 2.5)); // 2.123
+console.log(random.choice(['a','b','c'])); // 'b'
+console.log(random.char(65, 90));    // 'K'
+```
