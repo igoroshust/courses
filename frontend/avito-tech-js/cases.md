@@ -1473,3 +1473,109 @@ console.log(random.float(1.5, 2.5)); // 2.123
 console.log(random.choice(['a','b','c'])); // 'b'
 console.log(random.char(65, 90));    // 'K'
 ```
+
+## Вернуть первую чётную цифру с конца числа
+find / findLast
+```javascript
+let number = 23923123;
+
+const lastEvenNumber = +String(number).split('').reverse().find(i => i % 2 === 0); // Можно использовать findLast
+
+console.log(lastEvenNumber);
+```
+
+Через while
+```javascript
+let number = 23923123;
+
+const lastEvenNumber = num => {
+    let str = String(num);
+    let i = str.length;
+    while (i--) {
+        if (+str[i] % 2 === 0) return str[i];
+    }
+};
+console.log(lastEvenNumber(number));
+```
+
+reduceRight
+```javascript
+const lastEvenNumber = num => 
+    String(num)
+    .split('')
+    .reduceRight((acc, char) => acc || (+char % 2 === 0 ? char : null), null);
+```
+
+
+for...of 
+```javascript
+let number = 23923123;
+
+const lastEvenNumber = num => {
+    for (const char of String(num).split('').reverse()) {
+        if (+char % 2 === 0) return char;
+    }
+};
+
+console.log(lastEvenNumber(number));
+```
+
+Решение через цикл
+```javascript
+let number = 23923123;
+
+const getLastEvenNumber = (num) => {
+  let stringNum = String(num);
+
+  for (let i = stringNum.length - 1; i >= 0; i--) {
+    const digit = +stringNum[i];
+    if (!isNaN(digit) && digit % 2 === 0) return digit;
+  }
+  return null;
+};
+
+console.log(getLastEvenNumber(number));
+```
+
+
+Моё решение
+```javascript
+let number = 23923123;
+
+const getLastEvenNumber = num => {
+    let stringNum = String(num);
+
+    for (let i = stringNum.length - 1; i >= 0; i--) {
+    if (+stringNum[i] % 2 === 0) return +stringNum[i];
+}};
+
+console.log(
+    getLastEvenNumber(number)
+);
+```
+
+
+match + regexp
+```javascript
+const lastEvenNumber = num => 
+    String(num).match(/[02468](?=[^02468]*$)/)?.[0];
+```
+
+String.prototype.matchAll
+```javascript
+const lastEvenNumber = num => {
+    const match = String(num).matchAll(/[02468]/g);
+    return [...match].pop()?.[0];
+};
+```
+
+
+Функция-генератор
+```javascript
+function* evenDigits(str) {
+    for (let i = str.length - 1; i >= 0; i--) {
+        if (+str[i] % 2 === 0) yield str[i];
+    }
+}
+const lastEvenNumber = num => evenDigits(String(num)).next().value;
+```
