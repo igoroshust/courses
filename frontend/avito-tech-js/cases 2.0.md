@@ -95,3 +95,65 @@ const hasConsecutiveDuplicates = arr =>
     arr?.length > 1 && arr.some((item, i) => item === arr[i + 1]);
 console.log(hasConsecutiveDuplicates(arr));
 ```
+
+
+## Проверить, что числа идут в порядке возрастания
+Моё решение через for
+```javascript
+let number = 12345;
+
+const tF = (num) => {
+  let numberArray = String(num).split("");
+  for (let i = 0; i < numberArray.length; i++) {
+    if (numberArray[i] > numberArray[i + 1]) return false;
+  }
+  return true;
+};
+```
+
+Через every
+```javascript
+let number = 12344;
+
+const isIncreasing = (number) => {
+  const digits = String(number).split('');
+  return digits.slice(0, -1).every((digit, index) => 
+    digit < digits[index + 1]
+  );
+};
+
+console.log(isIncreasing(number));
+```
+
+Альтернатива через every
+```javascript
+let number = 123456;
+
+const isIncreasing = (number) => {
+  const digits = String(number).split('');
+  return digits.every((d, i) => i === digits.length - 1 || d < digits[i+1])
+};
+
+console.log(isIncreasing(number));
+```
+
+Через reduce
+```javascript
+let number = 12345;
+
+const isIncreasing = (num) => 
+  String(num)
+    .split('')
+    .reduce((acc, d, i, arr) => acc && (i === arr.length - 1 || d <= arr[i + 1]), true);
+
+console.log(isIncreasing(number));
+```
+
+Через sort 
+```javascript
+const isIncreasing = (num) => {
+  const digits = String(num).split('');
+  const sorted = [...digits].sort();
+  return digits.join('') === sorted.join('');
+};
+```
