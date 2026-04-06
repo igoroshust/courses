@@ -157,3 +157,27 @@ const isIncreasing = (num) => {
   return digits.join('') === sorted.join('');
 };
 ```
+
+
+## Удалить пустые элементы из массива
+
+Финальное решение
+```javascript
+let arr = [1, '', 2, '', 3, '', '', 12, ' '];
+const filtered = arr.filter(space => String(space).trim() !== '')
+
+arr.length = 0; // Очищаем массив
+arr.push(...filtered)
+
+console.log(arr);
+```
+
+Мои варианты
+```javascript
+let arr = [1, '', 2, '', 3, '', '', 12, ' '];
+const result = arr.filter(space => String(space).trim() !== '');
+const removeBolean = arr.filter(Boolean); // неточно
+
+// const strange = arr.join('').split('').map(Number); // под вопросом
+```
+
