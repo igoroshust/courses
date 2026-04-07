@@ -181,3 +181,85 @@ const removeBolean = arr.filter(Boolean); // неточно
 // const strange = arr.join('').split('').map(Number); // под вопросом
 ```
 
+
+
+## Отсортировать элементы в подмассиве
+for...of (мутация, рекомендуемо при мутации)
+```javascript
+let arr = [
+  [2, 1, 4, 3, 5],
+  [3, 5, 2, 4, 1],
+  [4, 3, 1, 5, 2],
+];
+
+for (const subArray of arr) subArray.sort((a, b) => b - a);
+
+console.log(arr);
+```
+
+forEach + sort (рекомендуемо без мутации, лучше чем for + sort по читаемости)
+```javascript
+let arr = [
+  [2, 1, 4, 3, 5],
+  [3, 5, 2, 4, 1],
+  [4, 3, 1, 5, 2],
+];
+
+const sortedArr = arr.map(subArray => [...subArray].sort((a, b) => b - a));
+
+console.log(sortedArr);
+```
+
+
+map + sort
+```javascript
+let arr = [
+  [2, 1, 4, 3, 5],
+  [3, 5, 2, 4, 1],
+  [4, 3, 1, 5, 2],
+];
+
+const sortedArr = arr.map(subArray => [...subArray].sort((a, b) => b - a));
+
+console.log(sortedArr);
+```
+
+slice + map
+```javascript
+let arr = [
+  [2, 1, 4, 3, 5],
+  [3, 5, 2, 4, 1],
+  [4, 3, 1, 5, 2],
+];
+
+const sortedArr = arr.map(subArray => subArray.slice().sort((a, b) => b - a));
+```
+
+Глубокое копирование + сортировка (костыль)
+```javascript
+let arr = [
+  [2, 1, 4, 3, 5],
+  [3, 5, 2, 4, 1],
+  [4, 3, 1, 5, 2],
+];
+
+const sortedArr = JSON.parse(JSON.stringify(arr)).map(subArray => subArray.sort((a, b) => b - a));
+
+console.log(sortedArr);
+```
+
+
+Моё решение (менее читаемо, но подходит для базовых случаев)
+```javascript
+let arr = [
+	[2, 1, 4, 3, 5],
+	[3, 5, 2, 4, 1],
+	[4, 3, 1, 5, 2],
+];
+
+for (let i = 0; i < arr.length; i++){
+    arr[i].sort((a, b) => b - a);
+}
+
+console.log(arr);
+```
