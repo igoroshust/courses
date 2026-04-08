@@ -263,3 +263,59 @@ for (let i = 0; i < arr.length; i++){
 
 console.log(arr);
 ```
+
+
+## Удалить элементы с конца второго массива до совпадения по длине с первым массивом
+Универсальная функция
+```javascript
+let arr = [1, 2, 3];
+let arr1 = [1, 2, 3, 4, 5];
+
+function truncateToLength(array, targetLength) {
+    const excess = array.length - targetLength;
+    if (excess > 0) array.splice(-excess);
+    return array;
+}
+
+console.log(
+    truncateToLength(arr1, arr.length)
+);
+```
+
+
+Через splice
+```javascript
+let arr = [1, 2, 3];
+let arr1 = [1, 2, 3, 4, 5];
+
+arr1.splice(-(arr1.length - arr.length))
+
+console.log(arr1);
+```
+
+Через slice
+```javascript
+let arr = [1, 2, 3];
+let arr1 = [1, 2, 3, 4, 5];
+
+arr1 = arr1.slice(0, arr.length);
+
+console.log(arr1);
+```
+
+
+Моё решение
+```javascript
+let arr = [1, 2, 3];
+let arr1 = [1, 2, 3, 4, 5];
+
+// While
+while (arr1.length > arr.length) arr1.pop();
+
+// For
+for (let i = arr1.length - arr.length; i > 0; i--) {
+    arr1.pop();
+}
+
+console.log(arr1);
+```
