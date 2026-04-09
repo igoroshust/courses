@@ -1,12 +1,4 @@
-let arr = [1, 2, 3];
-let arr1 = [1, 2, 3, 4, 5];
+// const numbers = [...Array(11).keys()].map(i => i + 10).forEach(num => console.log(num));
 
-function truncateToLength(array, targetLength) {
-    const excess = array.length - targetLength;
-    if (excess > 0) array.splice(-excess);
-    return array;
-}
-
-console.log(
-    truncateToLength(arr1, arr.length)
-);
+const numbers = Array.from({length: 11}).map((_, i) => i + 10);
+numbers.forEach(num => console.log(num))

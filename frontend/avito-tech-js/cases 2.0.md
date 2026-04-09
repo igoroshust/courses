@@ -319,3 +319,26 @@ for (let i = arr1.length - arr.length; i > 0; i--) {
 
 console.log(arr1);
 ```
+
+
+## Вывести число в промежутке от 10 до 1000, если предпоследнее число чётное
+Моё решение
+```javascript
+for (let i = 10; i <= 1000; i++) {
+    if (String(i).at(-2) % 2 === 0) console.log(i);
+}
+```
+
+## Вывести последовательность чисел
+Через Array.from
+```javascript
+const numbers = Array.from({length: 11}, (_, i) => i + 10);
+numbers.forEach(num => console.log(num));
+```
+
+Через spread
+```javascript
+const test = [...Array(11).keys()].map(i => i + 10).forEach(num => console.log(num));
+
+console.log(test);
+```
