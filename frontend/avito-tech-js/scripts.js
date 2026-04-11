@@ -1,4 +1,14 @@
-// const numbers = [...Array(11).keys()].map(i => i + 10).forEach(num => console.log(num));
+// Через объекты
+function example(n) {
+    return {1: 2, 2: 1}[n];
+}
 
-const numbers = Array.from({length: 11}).map((_, i) => i + 10);
-numbers.forEach(num => console.log(num))
+// Через массивы
+function example1(n) {
+    return [2, 1][n-1]
+}
+
+// Через oneliner
+function example2(n) {
+    return 3 - n;
+}

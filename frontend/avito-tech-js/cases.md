@@ -51,6 +51,22 @@ let arr = [], count = 5;
 while (count--) arr.push(Math.floor(Math.random() * 100) + 1);
 ```
 
+Мой кастомный вариант
+```javascript
+const numbers = [1, 2, 3, 3, 4, 5];
+
+const addRandomNumbers = (arr, count) => {
+    const currentLength = arr.length;
+    while (currentLength + count > arr.length) {
+        arr.push(Math.floor(Math.random() * 100))
+    }
+};
+
+addRandomNumbers(numbers, 5)
+
+console.log(numbers);
+```
+
 ### Выведите все символы числа с конца
 ```javascript
 let num = 12345;

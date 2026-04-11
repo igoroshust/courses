@@ -342,3 +342,22 @@ const test = [...Array(11).keys()].map(i => i + 10).forEach(num => console.log(n
 
 console.log(test);
 ```
+
+
+## Вернуть 2 при вводе 1, вернуть 1 при вводе 2
+```javascript
+// Через объекты
+function example(n) {
+    return {1: 2, 2: 1}[n];
+}
+
+// Через массивы
+function example1(n) {
+    return [2, 1][n-1]
+}
+
+// Через oneliner
+function example2(n) {
+    return 3 - n;
+}
+```
