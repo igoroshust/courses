@@ -361,3 +361,33 @@ function example2(n) {
     return 3 - n;
 }
 ```
+
+
+## Найти уникальные элементы в массиве
+Моё решение
+```javascript
+const arr = [1, 2, 3, 3, 5];
+
+const result = arr.reduce((acc, i) => acc.find(item => item === i) ? acc : (acc.push(i),acc), []);
+
+console.log(result);
+```
+
+Set (Оптимальный O(n) - константное время)
+```javascript
+const arr = [1, 2, 3, 3, 5];
+
+const result = [...new Set(arr)];
+
+console.log(result);
+```
+
+Функциональный стиль без мутаций
+```javascript
+const arr = [1, 2, 3, 3, 5];
+
+const result = arr.reduce((acc, i) => 
+  acc.includes(i) ? acc : [...acc, i]), []);
+
+console.log(result);
+```

@@ -1,14 +1,5 @@
-// Через объекты
-function example(n) {
-    return {1: 2, 2: 1}[n];
-}
+const arr = [1, 2, 3, 3, 5];
 
-// Через массивы
-function example1(n) {
-    return [2, 1][n-1]
-}
+const result = arr.reduce((acc, i) => acc.find(item => item === i) ? acc : [...acc, i], []);
 
-// Через oneliner
-function example2(n) {
-    return 3 - n;
-}
+console.log(result);
