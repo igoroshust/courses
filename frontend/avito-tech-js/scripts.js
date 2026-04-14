@@ -1,5 +1,4 @@
-const arr = [1, 2, 3, 3, 5];
-
-const result = arr.reduce((acc, i) => acc.find(item => item === i) ? acc : [...acc, i], []);
+let num = 5;
+let result = '0'.repeat(num);
 
 console.log(result);

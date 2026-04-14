@@ -391,3 +391,44 @@ const result = arr.reduce((acc, i) =>
 
 console.log(result);
 ```
+
+
+## Вывести количество нолей равному значению переменной
+
+repeat (самый быстрый)
+```javascript
+let num = 5;
+let result = '0'.repeat(num);
+
+console.log(result);
+```
+
+Array.fill
+```javascript
+let num = 5;
+let res = new Array(num).fill('0').join('');
+
+console.log(res);
+```
+
+for
+```javascript
+let num = 5;
+let res = '';
+
+for (let i = 0; i < num; i++) res += '0'
+```
+
+padStart
+```javascript
+let num = 5;
+let res = ''.padStart(num, '0');
+console.log(res)
+```
+
+Array.from()
+```javascript
+let num = 5;
+let res = Array.from({ length: num }, () => '0').join('');
+console.log(res)
+```
