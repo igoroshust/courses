@@ -432,3 +432,61 @@ let num = 5;
 let res = Array.from({ length: num }, () => '0').join('');
 console.log(res)
 ```
+
+## Посчитать сумму элементов вложенного массива
+reduce для двумерного массива (рекомендуемый)
+```javascript
+let array = [
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9],
+]
+
+let sum = array.reduce((acc, subArray) => 
+  acc + subArray.reduce(subAcc, num) => subAcc + num, 0),
+  0
+);
+```
+
+for...of
+```javascript
+let array = [
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9],
+]
+
+let sum = 0;
+for (const subArray of array) {
+	for (const num of subArray) sum += num;
+}
+
+console.log(sum);
+```
+
+for
+```javascript
+let array = [
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9],
+]
+
+let sum = 0;
+for (let i = 0; i < array.length; i++) {
+  for (let j = 0; j < array[i].length; j++) {
+    sum += array[i][j];
+  }
+}
+```
+
+flat + reduce (минус: промежуточный расплющенный массив -> больше расход памяти)
+```javascript
+let array = [
+	[1, 2, 3],
+	[4, 5, 6],
+	[7, 8, 9],
+]
+
+let sum = array.flat().reduce((acc, num) => acc + num, 0);
+```
