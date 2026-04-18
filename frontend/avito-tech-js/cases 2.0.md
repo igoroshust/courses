@@ -490,3 +490,21 @@ let array = [
 
 let sum = array.flat().reduce((acc, num) => acc + num, 0);
 ```
+
+## Проверить, что каждая цифра нечётная
+Моё решение
+```javascript
+const num = 1357;
+
+const result = String(num).split('').every(i => i % 2 !== 0);
+
+console.log(result);
+```
+
+Регулярное выражение
+```javascript
+const num = 1357;
+const result = !/[02468]/.test(String(num));
+
+console.log(result); // true, если нет чётных цифр
+```
