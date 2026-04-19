@@ -508,3 +508,112 @@ const result = !/[02468]/.test(String(num));
 
 console.log(result); // true, если нет чётных цифр
 ```
+
+## Посчитать сумму элементов вложенного массива
+
+Моё решение
+```javascript
+let arr = [
+	[
+		[11, 12, 13],
+		[14, 15, 16],
+		[17, 17, 19],
+	],
+	[
+		[21, 22, 23],
+		[24, 25, 26],
+		[27, 27, 29],
+	],
+	[
+		[31, 32, 33],
+		[34, 35, 36],
+		[37, 37, 39],
+	],
+];
+
+const result = arr.flat(2).reduce((acc, item) => acc + item, 0);
+// можно flat(Infinity) - гарантировано развернёт массив любой вложенности
+
+console.log(result);
+```
+
+Вложенные циклы
+```javascript
+let arr = [
+	[
+		[11, 12, 13],
+		[14, 15, 16],
+		[17, 17, 19],
+	],
+	[
+		[21, 22, 23],
+		[24, 25, 26],
+		[27, 27, 29],
+	],
+	[
+		[31, 32, 33],
+		[34, 35, 36],
+		[37, 37, 39],
+	],
+];
+let sum = 0;
+
+for (let i = 0; i < arr.length; i++) {
+  for (let j = 0; j < arr[i].length; j++) {
+    for (let k = 0; k < arr[i][j].length; k++) {
+      sum += arr[i][j][k];
+    }
+  }
+}
+
+console.log(sum); // 672
+```
+
+Рекурсивная функция
+```javascript
+function sumNestedArray(array) {
+  return array.reduce((acc, item) => {
+    if (Array.isArray(item)) {
+      return acc + sumNestedArray(item);
+    } else {
+      return acc + item;
+    }
+  }, 0);
+}
+```
+
+forEach
+```javascript
+
+let arr = [
+	[
+		[11, 12, 13],
+		[14, 15, 16],
+		[17, 17, 19],
+	],
+	[
+		[21, 22, 23],
+		[24, 25, 26],
+		[27, 27, 29],
+	],
+	[
+		[31, 32, 33],
+		[34, 35, 36],
+		[37, 37, 39],
+	],
+];
+let sum = 0;
+
+arr.forEach(block => {
+    console.log('block :>> ', block); // [ [ 11, 12, 13 ], [ 14, 15, 16 ], [ 17, 17, 19 ] ]
+  block.forEach(row => {
+    console.log('row :>> ', row); // [ 11, 12, 13 ]
+    row.forEach(num => {
+        console.log('num :>> ', num); // 11 (потом 12, 13)
+      sum += num;
+    });
+  });
+});
+
+console.log(sum); // 672
+```
