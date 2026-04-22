@@ -617,3 +617,106 @@ arr.forEach(block => {
 
 console.log(sum); // 672
 ```
+
+## Поменять элементы массива местами
+
+for
+```javascript
+let arr = [1, 2, 3, 4, 5, 6, 7, 8];
+
+for (let i = 0; i < arr.length - 1; i += 2) {
+    [arr[i], arr[i+1]] = [arr[i+1], arr[i]];
+}
+
+console.log(arr);
+```
+
+Моё решение
+```javascript
+let arr = [1, 2, 3, 4, 5, 6, 7, 8];
+
+arr.forEach((item, index) => index % 2 !== 0 ? [ arr[index-1], arr[index] ] = [ item, arr[index-1] ] : '' );
+
+console.log(arr);
+```
+
+## Найти сумму элементов объекта
+
+Моё решение
+```javascript
+let obj = {
+	1: {
+		1: 11,
+		2: 12,
+		3: 13,
+	},
+	2: {
+		1: 21,
+		2: 22,
+		3: 23,
+	},
+	3: {
+		1: 24,
+		2: 25,
+		3: 26,
+	},
+}
+
+let sum = 0;
+
+for (let row of Object.values(obj)) {
+    for (let item of Object.values(row)) {
+        sum += item;
+    }
+}
+
+console.log(sum);
+```
+
+Функциональный стиль
+```javascript
+function sumNestedObject(obj) {
+    let sum = 0;
+    for (const row of Object.values(obj)) {
+        for (const item of Object.values(row)) {
+            sum += Number(item);
+        }
+    }
+    return sum;
+}
+```
+
+reduce
+```javascript
+const sum = Object.values(obj).flatMap(Object.values).reduce((sum, num) => sum + num, 0);
+
+// Object.values(obj).flatMap(Object.values) // [11, 12, 13, 21, 22, 23, 24, 25, 26]
+
+// Сначала к каждому элементу применяется Object.values, получаем массив [11,12,13]
+
+// Затем примеяем flat(), расщипляя массивы на 1 уровень: [11, 12, 13, 21, 22, 23, 24, 25, 26]
+
+
+console.log('🔹 1. Object.values(obj):');
+console.log(Object.values(obj));
+
+console.log('\n🔹 2. .map(Object.values):');
+// Элемент 1: {1:11,2:12,3:13} → Object.values() → [11,12,13]
+console.log(Object.values(obj).map(Object.values)); // [ [ 11, 12, 13 ], [ 21, 22, 23 ], [ 24, 25, 26 ] ]
+
+console.log('\n🔹 3. .flatMap(Object.values):'); 
+console.log(Object.values(obj).flatMap(Object.values)); // [11, 12, 13, 21, 22, 23, 24, 25, 26]
+
+console.log('\n🔹 4. Итоговая сумма:');
+console.log(Object.values(obj).flatMap(Object.values).reduce((a,b)=>a+b,0));
+```
+
+Деструктуризация
+```javascript
+let sum = 0;
+for (let [, row] of Object.entries(obj)) {
+  for (let [, item] of Object.entries(row)) {
+    sum += item;
+  }
+}
+```
