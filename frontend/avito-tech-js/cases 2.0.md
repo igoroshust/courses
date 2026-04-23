@@ -720,3 +720,83 @@ for (let [, row] of Object.entries(obj)) {
   }
 }
 ```
+
+
+## Найти сумму элементов объекта
+
+Вложенный flatMap
+```javascript
+let obj = {
+	1: {
+		1: {
+			1: 111,
+			2: 112,
+			3: 113,
+		},
+		2: {
+			1: 121,
+			2: 122,
+			3: 123,
+		},
+	},
+	2: {
+		1: {
+			1: 211,
+			2: 212,
+			3: 213,
+		},
+		2: {
+			1: 221,
+			2: 222,
+			3: 223,
+		},
+	},
+	3: {
+		1: {
+			1: 311,
+			2: 312,
+			3: 313,
+		},
+		2: {
+			1: 321,
+			2: 322,
+			3: 323,
+		},
+	},
+}
+
+let sum = Object.values(obj)
+    .flatMap(Object.values)
+    .flatMap(Object.values)  // ← добавьте еще один flatMap!
+    .reduce((sum, num) => sum + num, 0);
+
+console.log(sum); // 2346
+```
+
+Моё решение
+```javascript
+let sum2 = 0;
+
+for (let firstLevelKeys of Object.values(obj)) {
+    for (let secondLevelKeys of Object.values(firstLevelKeys)) {
+        for (let item of Object.values(secondLevelKeys)) {
+            console.log('item :>> ', item);
+            sum2 += item;
+        }
+    }
+}
+
+console.log(sum2);
+```
+
+Генератор
+```javascript
+function* flatten(obj) {
+    for (const value of Object.values(obj)) {
+        if (typeof value === 'number') yield value;
+        else yield* flatten(value);
+    }
+}
+
+const sum = [...flatten(obj)].reduce((a, b) => a + b, 0);
+```
