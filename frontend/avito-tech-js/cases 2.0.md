@@ -800,3 +800,68 @@ function* flatten(obj) {
 
 const sum = [...flatten(obj)].reduce((a, b) => a + b, 0);
 ```
+
+## Записать значения в массив посимвольно
+
+Моё решение
+```javascript
+let arr = [123, 456, 789];
+
+const one = arr.join('').split('').map(Number);
+const two = array => {
+    let newArr = '';
+    for (let i = 0; i < array.length; i++) {
+        newArr += array[i];
+    }
+    return newArr.split('').map(Number);
+}
+
+const result = String();
+
+console.log(two(arr));
+```
+
+Array.from() + String()
+```javascript
+let arr = [123, 456, 789];
+
+const result = Array.from(arr.join(''), Number);
+console.log(result);
+
+// Array.from(string, mapFn) создаёт массив из строки и сразу применяет функцию Number К каждому символу
+```
+
+spread + map()
+```javascript
+let arr = [123, 456, 789];
+const result = [...arr.join('')].map(Number);
+```
+
+for
+```javascript
+
+let arr = [123, 456, 789];
+const result = [];
+
+for (const num of arr) {
+  const digits = String(num).split('').map(Number);
+  result.push(...digits);
+}
+```
+
+## Пример thisArg в Array.from()
+
+```javascript
+const context = {
+  multiplier: 2,
+  transform(value) {
+    return value * this.multiplier;
+  }
+};
+
+const result = Array.from([1, 2, 3, 4], function(value) {
+  return this.transform(value);
+}, context);
+
+console.log(result); // [2, 4, 6, 8]
+```
