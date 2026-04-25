@@ -865,3 +865,136 @@ const result = Array.from([1, 2, 3, 4], function(value) {
 
 console.log(result); // [2, 4, 6, 8]
 ```
+
+## Найти сумму элементов структуры 
+
+Рекомендация для production (без промежуточных массивов)
+```javascript
+let data = [
+	{
+		1: 11,
+		2: 12,
+		3: 13,
+	},
+	{
+		1: 21,
+		2: 22,
+		3: 23,
+	},
+	{
+		1: 24,
+		2: 25,
+		3: 26,
+	},
+];
+
+const sumObjectValues = arr => arr.reduce((sum, obj) => sum + Object.values(obj).reduce((a, b) => a + b, 0), 0);
+
+const result = sumObjectValues(data);
+```
+
+Проверка работы
+```javascript
+console.time('ваш');
+data.flatMap(Object.values).reduce((s,n)=>s+n,0);
+console.timeEnd('ваш');     // ~12ms
+
+console.time('мой');  
+data.reduce((s,obj)=>s+Object.values(obj).reduce((a,b)=>a+b,0),0);
+console.timeEnd('мой');     // ~8ms
+```
+
+Функциональный стиль
+```javascript
+let data = [
+	{
+		1: 11,
+		2: 12,
+		3: 13,
+	},
+	{
+		1: 21,
+		2: 22,
+		3: 23,
+	},
+	{
+		1: 24,
+		2: 25,
+		3: 26,
+	},
+];
+```
+
+Моё решение (минус - создаёт промежуточный массив)
+```javascript
+let data = [
+	{
+		1: 11,
+		2: 12,
+		3: 13,
+	},
+	{
+		1: 21,
+		2: 22,
+		3: 23,
+	},
+	{
+		1: 24,
+		2: 25,
+		3: 26,
+	},
+];
+
+const result = data.flatMap(Object.values).reduce((sum, num) => sum + num, 0);
+
+console.log(result);
+```
+
+Функциональный стиль
+```javascript
+let data = [
+	{
+		1: 11,
+		2: 12,
+		3: 13,
+	},
+	{
+		1: 21,
+		2: 22,
+		3: 23,
+	},
+	{
+		1: 24,
+		2: 25,
+		3: 26,
+	},
+];
+
+const sumBy = (arr, fn) => arr.reduce((sum, item) => sum + fn(item), 0);
+
+const result = sumBy(data, obj => Object.values(obj).reduce((a, b) => a + b, 0));
+
+console.log(result);
+```
+
+lodash (библиотека для работы с данными)
+```javascript
+npm install lodash
+
+const result = _.sum(_.flatMap(data, _.values));
+```
+
+## Тестирование (для точности)
+```javascript
+// Тестируем 3 раза для точности
+function benchmark(fn, name) {
+  let total = 0;
+  for(let i=0; i<3; i++) {
+    console.time(name);
+    fn();
+    console.timeEnd(name);
+  }
+}
+
+benchmark(() => data.flatMap(Object.values).reduce((s,n)=>s+n,0), 'flatMap');
+```
