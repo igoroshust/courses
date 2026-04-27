@@ -948,6 +948,14 @@ let data = [
 const result = data.flatMap(Object.values).reduce((sum, num) => sum + num, 0);
 
 console.log(result);
+
+/* Более читаемый вариант */
+// const result = data.reduce((totalSum, item) => {
+//   const itemSum = Object.values(item).reduce((sum, num) => sum + num, 0);
+//   return totalSum + itemSum;
+// }, 0);
+
+// console.log(result); // 177
 ```
 
 Функциональный стиль
@@ -997,4 +1005,49 @@ function benchmark(fn, name) {
 }
 
 benchmark(() => data.flatMap(Object.values).reduce((s,n)=>s+n,0), 'flatMap');
+```
+
+## Отсортировать слова в строке в алфавитном порядке
+Моё решение
+```javascript
+let string = 'Съешь этих мягких французских булок и выпей же чаю';
+
+const result = string.toLowerCase().split(' ').sort((a, b) => a.localeCompare(b, 'ru')).join(' ');
+
+console.log(result);
+```
+
+## Найти сумму элементов структуры
+
+Моё решение
+```javascript
+let data = [
+    {
+        1: [1, 2, 3],
+        2: [1, 2, 3],
+        3: [1, 2, 3],
+    },
+    {
+        1: [1, 2, 3],
+        2: [1, 2, 3],
+        3: [1, 2, 3],
+    },
+    {
+        1: [1, 2, 3],
+        2: [1, 2, 3],
+        3: [1, 2, 3],
+    },
+];
+
+
+const result = data.reduce((sum, row) => sum+Object.values(row).flat(Infinity).reduce((s, i) => s + i, 0), 0);
+
+console.log(result);
+```
+
+Компактный flatMap + reduce
+```javascript
+
+const result = data.flatMap(row => Object.values(row).flat()).reduce((sum, num) => sum + num, 0);
+
 ```
