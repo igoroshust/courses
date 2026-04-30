@@ -1051,3 +1051,64 @@ console.log(result);
 const result = data.flatMap(row => Object.values(row).flat()).reduce((sum, num) => sum + num, 0);
 
 ```
+
+# Сформировать массив с помощью циклов [[1, 2, 3], [4, 5, 6], [7, 8, 9],]
+
+Оптимальный вариант
+```javascript
+const createRangeArray = (value, rows, elements = 3) => {
+    const resultArray = [];
+    let current = value;
+    
+    for (let i = 0; i < rows; i++) {
+        const start = current;
+        const row = [];
+        
+        // Создаем строку за один проход
+        for (let j = 0; j < elements; j++) {
+            row[j] = start + j;
+        }
+        resultArray[i] = row;
+        current += elements;
+    }
+    return resultArray;
+};
+
+console.log(
+    createRangeArray(1, 3)
+);
+```
+
+Моё решение
+```javascript
+const createRangeArray = (value, rows, elements=3) => {
+    let resultArray = [];
+    let acc = value;
+    for (let i = 0; i < rows; i++) {
+        let parts = [];
+		for (let j = 0; j < elements; j++) {
+			parts.push(acc);
+			acc++;
+		}
+        resultArray.push(parts);
+    }
+    return resultArray;
+}
+
+const result = createRangeArray(1, 3);
+
+console.log(result);
+```
+
+Array.from() + flatMap()
+```javascript
+const createRangeArray = (start, rows, elements = 3) => {
+    return Array.from({ length: rows }, (_, rowIndex) =>
+        Array.from({ length: elements }, (_, colIndex) =>
+            start + rowIndex * elements + colIndex
+        )
+    );
+};
+
+console.log(createRangeArray(1, 3));
+```
