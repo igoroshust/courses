@@ -1056,23 +1056,25 @@ const result = data.flatMap(row => Object.values(row).flat()).reduce((sum, num) 
 
 Оптимальный вариант
 ```javascript
-const createRangeArray = (value, rows, elements = 3) => {
+const createRangeArray = (value, rows, elements=3) => {
     const resultArray = [];
     let current = value;
-    
+
     for (let i = 0; i < rows; i++) {
         const start = current;
         const row = [];
         
-        // Создаем строку за один проход
+        // Создаём строку за один проход
         for (let j = 0; j < elements; j++) {
             row[j] = start + j;
         }
         resultArray[i] = row;
+        console.log('current :>> ', current); // 1 4 7
         current += elements;
     }
+
     return resultArray;
-};
+}
 
 console.log(
     createRangeArray(1, 3)
@@ -1111,4 +1113,31 @@ const createRangeArray = (start, rows, elements = 3) => {
 };
 
 console.log(createRangeArray(1, 3));
+```
+
+# Вернуть max и min
+spread
+```javascript
+const defineMinMaxValue = array => { 
+	return { 
+		max: Math.max(...array),
+		min: Math.min(...array)
+	};
+};
+
+console.log(defineMinMaxValue([1, 2, 3])); 
+// { max: 3, min: 1 }
+```
+
+apply
+```javascript
+const defineMinMaxValue = array => {
+	return {
+		max: Math.max.apply(null, array),
+		min: Math.min.apply(null, array)
+	};
+};
+
+console.log(defineMinMaxValue([1, 2, 3]));
+// { max: 3, min: 1 }
 ```
