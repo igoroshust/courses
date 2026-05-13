@@ -293,3 +293,63 @@ document.getElementById('calcForm').addEventListener('submit', e => {
   document.querySelector('.calc__result').style.display = 'block';
 });
 ```
+
+# Дан абзац с числом и кнопка. По нажатию на кнопку возведите текст абзаца в квадрат.
+Моё решение
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./scripts.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+    <p class="number">16</p>
+    <button class="button">Возвести число в квадрат</button>
+</body>
+</html>
+```
+
+```javascript
+const button = document.querySelector('.button');
+const number = document.querySelector('.number');
+
+
+button.addEventListener('click', function(){
+    number.textContent = number.textContent ** 2;
+});
+```
+
+С очисткой
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="./scripts.js" defer></script>
+    <title>Квадрат числа</title>
+</head>
+<body>
+    <p class="number">25</p>
+    <button class="button">Возвести в квадрат</button>
+    <button class="clear">Очистить</button>
+</body>
+</html>
+```
+
+```javascript
+const button = document.querySelector('.button');
+const clearBtn = document.querySelector('.clear');
+const number = document.querySelector('.number');
+
+button.addEventListener('click', () => {
+    const num = Number(number.textContent);
+    number.textContent = num ** 2;
+});
+
+clearBtn.addEventListener('click', () => {
+    number.textContent = '';
+});
+```
