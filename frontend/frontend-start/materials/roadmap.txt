@@ -1,0 +1,5 @@
+1. Самоучитель HTML (htmlbook): https://htmlbook.ru/samhtml
+2. Самоучитель HTML (code.mu): https://code.mu/ru/markup/book/prime/html/intro/
+3. Самоучитель HTML (MDN): https://developer.mozilla.org/ru/docs/Learn_web_development
+4. Учебник HTML (MSiter): https://msiter.ru/tutorials/html-nachalnogo-urovnya
+5. Самоучитель DOKA: https://doka.guide/
