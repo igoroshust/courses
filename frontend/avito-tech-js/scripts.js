@@ -1,7 +1,4 @@
-const button = document.querySelector('.button');
-const number = document.querySelector('.number');
+const inputs = document.querySelectorAll('.taskForm__input');
+const show = document.querySelector('.show');
 
-
-button.addEventListener('click', function(){
-    number.value.textContent = number * 2;
-});
+console.log('inputs :>> ', inputs);
