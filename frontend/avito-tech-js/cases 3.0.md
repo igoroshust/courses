@@ -355,3 +355,113 @@ clearBtn.addEventListener('click', () => {
 ```
 
 # Даны инпуты, в которые вводятся числа. Сделайте так, чтобы по потери фокуса в любом инпуте его значение возводилось в квадрат.
+
+**Моё решение**
+```html
+    <form action="/" method="get" id="taskForm" name="taskForm">
+        <div>
+            <input type="text" name="taskForm-input1" class="taskForm__input taskForm__input-1" placeholder="Введите число...">
+        </div>
+        <div>
+            <input type="text" name="taskForm-input2" class="taskForm__input taskForm__input-1"  placeholder="Ввдите число...">
+        </div>
+    </form>
+```
+
+```javascript
+const inputs = document.querySelectorAll('.taskForm__input');
+
+inputs.forEach(item => item.addEventListener('focusout', function(e){
+    e.target.value *= e.target.value;
+}));
+```
+
+**С проверкой типов**
+```javascript
+inputs.forEach(item => {
+    item.addEventListener('blur', function(){
+        // Получаем значение
+        const value = this.value;
+
+        // Проверяем: если это число и оно не пустое
+        if (value !== '' && !isNaN(value)) {
+            this.value = value * value;
+        }
+    });
+});
+```
+
+# Дан абзац и кнопка. По нажатию на кнопку найдите сумму чисел от 1 до 100 и запишите результат в абзац.
+
+**Моё решение**
+```html
+<div class="block">
+    <h4 class="block__heading">Расчёт суммы от 1 до 100</h4>
+    <p class="block__result"  style="display: none;">Сумма от 1 до 100: </p>
+    <button class="block__button">Расчитать</button>
+</div>
+```
+
+```javascript
+const blockButton = document.querySelector('.block__button');
+const blockResult = document.querySelector('.block__result');
+
+blockButton.addEventListener('click', function(){
+    blockResult.insertAdjacentHTML('beforeend', calculateSumOneToHundred())
+    blockResult.style.display = 'block';
+});
+
+
+
+function calculateSumOneToHundred() {
+    let sum = 0;
+    let item = 1;
+
+
+    while (item < 101) {
+        sum += item;
+        item++;
+    }
+
+    return sum;
+};
+```
+
+**По формуле Гаусса**
+```html
+<div class="block">
+    <h4 class="block__heading">Расчёт суммы от 1 до 100</h4>
+    <p class="block__result"  style="display: none;"></p>
+    <button class="block__button">Расчитать</button>
+</div>
+```
+
+```javascript
+const blockButton = document.querySelector('.block__button');
+const blockResult = document.querySelector('.block__result');
+
+blockButton.addEventListener('click', function(){
+    const result = getSumOneToHundred();
+    blockResult.textContent = 'Сумма от 1 до 100: ' + result;
+    blockResult.style.display = 'block';
+});
+
+function getSumOneToHundred() {
+    // Формула Гаусса: n * (a1 + an) / 2
+    return 100 * (1 + 100) / 2;
+};
+```
+
+**Универсальная функция**
+```javascript
+function getSum(start, end) {
+    return (end - start + 1) * (start + end) / 2;
+}
+
+// Вызов: getSum(1, 100)
+```
+
+**Через reduce (не рекомендуется)**
+```javascript
+const test = [...Array(100)].map((_, i) => i + 1).reduce((sum, val) => sum + val, 0);
+```
