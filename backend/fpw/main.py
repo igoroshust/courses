@@ -1,7 +1,9 @@
-a = (1, 2)
-b = (2, 1)
+a = {1, 2}
+a.add(3)
 
-print(a == b)
-print(a is b)
-print(id(a))
-print(id(b))
+b = a.copy()
+b.add(4)
+
+c = a.intersection(b)
+c_listed = list(c)
+print(c_listed)
