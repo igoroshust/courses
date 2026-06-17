@@ -68,7 +68,6 @@ CREATE TABLE authors (
 );
 ```
 
-
 **Пересоздание таблицы books с внешним ключом**
 
 ```sql
@@ -92,7 +91,6 @@ SELECT books.title, authors.first_name, authors.last_name
 FROM books
 JOIN authors ON books(author_id) = authors(id);
 ```
-
 
 ### Многие ко многим
 
@@ -127,8 +125,6 @@ create table borrowed_books (
 );
 ```
 
-
-
 Регистрация нового посетителя
 
 ```sql
@@ -145,7 +141,6 @@ VALUES
     ('2022-01-01', '2022-01-15', 1, 1);
 ```
 
-
 Узнать, какие книги взял пользователь с id 1:
 
 ```sql
@@ -154,3 +149,31 @@ from books b
 join borrowed_books bor on bors.id = b.author_id
 where b.author_id = 1;
 ```
+
+
+# Почему в group by обязательно использовать поля из select
+
+В sql действует правило: все неагрегированные столбцы в SELECT должны быть в GROUP BY. Если в запросах нет агрегатных функций вроде `COUNT`, `SUM` и т.д., то поле из select необходимо включать в group by, иначе СУБД не поймёт, как "свернуть" строки: для одного book_id может быть много записей о выдаче, и без явной группировки непонятно, какое значение `title` брать. Лучше группировать по `id` (books.id), поскольку:
+
+- гарантируется уникальность (pk уникален)
+- соответствует семантике
+- стандарт SQL и строгие СУБД
+
+```sql
+select books.title, count(borrowed_books.book_id) as total_borrowed
+from books
+join borrowed_books on books.id = borrowed_books.book_id
+group by books.id, books.title
+order by total_borrowed DESC
+limit 3;
+```
+
+## Схемы (Schemas)
+
+Схемы в PostgreSQL - это логические контейнеры (папки) для объектов внутри одной базы данных: таблиц, представлений (view), функций и т.п.
+
+Аналогия:
+
+- База данных - диск `C:`
+- Схема - папка внутри диска `C:\Projects\MyApp`
+- Таблица - это файл внутри папки `users.csv`

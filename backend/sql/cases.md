@@ -12,54 +12,36 @@ order by a.id, b.title
 
 - distinct on - это расширение SQL именно для PostgreSQL (в чистом SQL такого нет). Его суть: для каждой уникальной комбинации в скобках оставь только одну строку, а какую именно - решает ORDER BY.  В данном случае - "для каждого `a.id` оставь только одну строку"
 
-# Переименовать таблицу
+
+# Количество книг в каждом жанре
 
 ```sql
-alter table borrower_books RENAME TO borrowed_books;
+SELECT genre, COUNT(*) as book_count
+from books
+group by genre
+order by book_count DESC -- сортировка по убыванию
 ```
 
-**Переименовать колонку**
+
+# Кто из посетителей чаще брал книгу
 
 ```sql
-alter table borrower_books rename column borrow_date to borrowed_date;
+SELECT borrowers.first_name, borrowers.last_name, count(borrowed_books.id) as total_borrowed
+from borrowers
+join borrowed_books on borrowers.id = borrowed_books.borrower_id
+group by borrowers.id, borrowers.first_name, borrowers.last_name
+order by total_borrowed DESC
+LIMIT 1;
 ```
 
 
-# Удаление базы данных
-
-1. Отключиться от удаляемой БД (переключитьяс на другую)
-
-   ```sql
-   \c postgres
-   ```
-2. Проверить наличие прав на удаление БД
-3. Принудительное завершение сессий (нужны права суперпользователя)
-
-   ```sql
-   SELECT pg_terminate_backend(pid) -- завершение сессии
-   FROM pg_stat_activity -- все активные сеансы на сервере
-   WHERE datname = 'repeat' -- только сессии к базе 'repeat
-   AND pid <> pg_backend_pid(); -- кроме моей собственной сессии (критично!)
-   ```
-4. Выполинть удаление БД
-
-   ```sql
-   DROP DATABASE repeat;
-   ```
-
-Комментарии
-
-- `pg_terminate_backend(pid)` - функция принудительного завершения сеанса (сессии) пользователя на сервере PostgreSQL
-- `pid` - идентификатор процесса (Process ID). У каждого подключения к базе есть свой `pid` - это число, по которому сервер понимает, какую сессию необходимо отменить или завершить.
-- `pg_stat_activity` - это системное представление (view), в котором PostgreSQL показывает все активные сеансы на сервере. Это "живой список подключений", отражающий, кто подключён, к какой базе, какой запрос сейчас выполняется, состояние сессии и т.д. Из него берётся `pid `для `pg_terminate_backend`.
-- `datname` - это имя базы данных, к которой подключена сессия
-- `<>` - не равно
-- `pg_backend_pid()` - функция, возвращающая PID текущего сеанса (из которого выполняем запрос). Она нужна, чтобы в фильтрах исключить себя.
-
-# Просмотр подключений к базам (живой список подключений)
+# Наиболее часто арендуемые книги
 
 ```sql
-SELECT pid, usename, datname, state, query
-FROM pg_stat_activity;
-ORDER BY query_start;
+select books.title, count(borrowed_books.book_id) as total_borrowed
+from books
+join borrowed_books on books.id = borrowed_books.book_id
+group by books.id, books.title
+order by total_borrowed DESC
+limit 3;
 ```
