@@ -32,6 +32,17 @@ PSQL
 \dt *.*
 ```
 
+# Посмотреть тип данных столбцов таблицы
+
+```sql
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'authors' -- название таблицы
+AND table_schema = current_schema();
+```
+
+- information_schema - мета-данные о базе: существующие таблицы, колонки, типы данных, ограничения и т.д.
+- current_schema() - текущая сессия
 
 # Переименовать таблицу
 
