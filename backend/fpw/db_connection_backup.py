@@ -9,38 +9,40 @@ try:
         password="postgres",
         host="127.0.0.1",
         port="5432",
-        dbname="news"
+        dbname="posts"
     )
-    print("Соединение с базой установлено!\n")
+    print("connected!")
 
     # Создаём курсор с возвратом строк как словарей
     with conn.cursor(cursor_factory=DictCursor) as cursor:
         # Получаем данные от пользователя
-        title = input(': ')
-        text = input(': ')
+        title = input('Введите заголовок: ')
+        text = input('Введите текст: ')
 
         # Вставляем данные безопасно (параметризация защищает от SQL‑инъекций)
         sql_insert = 'INSERT INTO posts (title, text) VALUES (%s, %s)'
         cursor.execute(sql_insert, (title, text))
         conn.commit()
-        print("Запись успешно добавлена!")
+        print("Запись успешно добавлена.")
 
         # Выбираем данные из той же таблицы (исправлено: было 'news', стало 'posts')
         cursor.execute("SELECT * FROM posts")
         result = cursor.fetchall()
 
+        print(f"Тип результата: {type(result)}")
+        if result:
+            print(f"Тип первой строки: {type(result[0])}")
 
-        # if result:
-        #     for news in result:
-        #         # Так как используется DictCursor, обращаемся по имени колонки
-        #         print(news['title'])
-        # else:
-        #     print("В таблице пока нет записей.")
+            for news in result:
+                # Так как используется DictCursor, обращаемся по имени колонки
+                print(news['title'])
+        else:
+            print("В таблице пока нет записей.")
 
 except psycopg2.OperationalError as e:
     print(f"Ошибка подключения к базе данных: {e}")
 except psycopg2.ProgrammingError as e:
-    print(f"Ошибка в SQL или структуре БД: {e}")
+    print(f"Ошибка в SQL или структуре БД (например, нет таблицы): {e}")
 except Exception as e:
     print(f"Произошла непредвиденная ошибка: {e}")
 finally:
