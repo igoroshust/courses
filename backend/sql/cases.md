@@ -384,8 +384,7 @@ select avg(nullif(rating, 0)) from reviews;
 insert into goods select max(good_id) + 1, 'Table', 2 from goods;
 ```
 
-
-#### Вставка записи с подзапросом 
+#### Вставка записи с подзапросом
 
 ```sql
 insert into goods (good_id, good_name, type)
@@ -416,7 +415,6 @@ where gt.good_type_name = 'equipment';
 
 -- commit;
 ```
-
 
 ### Удалить все бронирования жилья, в котором отсутствует кухня
 
@@ -449,4 +447,29 @@ USING GoodTypes
 WHERE GoodTypes.good_type_id = Goods.type
 AND Goodtypes.good_type_name = 'delicacies'
 
+```
+
+## Cравнение разных типов (если user_id - строка)
+
+```sql
+where cast(user_id as int) = 123;
+```
+
+## Определение возраста
+
+```sql
+select extract(year from age(now(), '1996-12-18 06:00:00'))
+```
+
+## Извлечь час из времени
+
+```sql
+SELECT extract(hour from TIME '14:30:45') AS hour_value
+```
+
+#### Выведите имена (поле **member_name**) и возраст для каждого человека из таблицы **FamilyMembers**
+
+```sql
+select member_name, extract(year from age(now(), birthday)) as age
+from FamilyMembers;
 ```
