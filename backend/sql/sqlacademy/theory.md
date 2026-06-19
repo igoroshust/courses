@@ -973,3 +973,131 @@ select avg(nullif(rating, 0)) from reviews;
 ```sql
 nullif(status, 'canceled') -- если статус отменён - считать отсутствующим
 ```
+
+## INSERT
+
+Два стиля:
+
+1. INSERT INTO ... VALUES ...
+2. INSERT INTO ... SELECT ...
+
+INSERT INTO ... SELECT используется для вставки данных, полученных из запроса. Позволяет копировать данные из одной таблицы в другую или вставлять результаты сложных вычислений:
+
+```sql
+INSERT INTO Goods (good_id, good_name, type)
+SELECT 20, 'Table', 2;
+
+-- Копирование из другой таблицы
+INSERT INTO Goods (good_id, good_name, type)
+SELECT good_id + 100, good_name, type
+FROM Goods
+WHERE type = 2;
+```
+
+Этот вариант используется для копирования данных между таблицами, вставки результатов вычислений или когда данные зависят от существующих записей в базе.
+
+**Автогенерация первичного ключа**
+
+- SMALLSERIAL
+- SERIAL
+- BIGSERIAL
+
+## UPDATE
+
+UPDATE - оператор обновления записей. Обязательно использовать с where (желательно ещё транзакцию задействовать)
+
+```sql
+update table_name set
+column_name = 'value'
+where cond
+```
+
+Пример с транзакцией:
+
+```sql
+-- begin;
+
+-- update books set
+-- genre = 'Фантастика'
+-- where id = 44;
+
+-- SAVEPOINT step1;
+
+-- select genre from books where id = 44
+
+-- rollback;
+
+-- rollback to savepoint step1;
+
+-- commit;
+```
+
+## DELETE
+
+DELETE - оператор удаления записи
+
+```sql
+DELETE FROM table_name
+[WHERE cond]
+```
+
+Если условие отсутствует, будут удалены все записи указанной таблицы
+
+### TRUNCATE
+
+Удаление можно произвести с помощью оператора `TRUNCATE`. Он выполняет удаление таблицы и пересоздаёт её заново - этот вариант работает гораздо быстрее, чем удаление всех записей одна за другой (как в случае с DELETE), особенно для больших таблиц.
+
+```sql
+TRUNCATE TABLE table_name;
+```
+
+Особенности TRUNCATE:
+
+- не срабатывает на триггеры, в частности, триггер удаления
+- удаляет все строки в таблице, не записывая при этом удаление отдельных строк данных в журнал транзакций
+- может сбрасывать счётчик идентификаторов при использовании опции `RESTART IDENTITY` (по умолчанию используется `CONTINUE IDENTITY`, и счётчик не сбрасывается)
+- требует права на изменение таблицы
+
+### Удаление записей при многотабличных запросах
+
+Если в DELETE-запросе используется USING, то после него необходимо указать дополнительные таблицы, по которым выбираются удаляемые записи
+
+```sql
+delete from table_1
+using table_2
+where table_1.field = table_2.filed
+[and cond];
+```
+
+Пример: удалить все бронирования жилья, в котором отсутствует кухня
+
+```sql
+delete from reservations
+using rooms
+where reservations.room_id = rooms.id
+and rooms.has_kitchen = false;
+```
+
+Удаление нескольких таблиц одновременно в PostgreSQL (транзакции)
+
+```sql
+begin;
+delete from reservations
+using rooms
+where reservations.room_id = rooms.id
+and rooms.has_kitchen = false;
+
+delete from rooms
+where rooms.has_kitchen = false;
+commit;
+```
+
+#### Измените запрос так, чтобы удалить товары (Goods), имеющие тип деликатесов (delicacies)
+
+```sql
+DELETE FROM Goods 
+USING GoodTypes
+WHERE GoodTypes.good_type_id = Goods.type
+AND Goodtypes.good_type_name = 'delicacies'
+
+```

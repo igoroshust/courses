@@ -370,11 +370,83 @@ update books set
 genre = nullif(genre, '')
 ```
 
-
 #### Подготовка данных для сравнения
 
 Агрегатные функции (count, avg, sum) игнорируют null. Если есть заглушки вроде 0 или '', которые портят статистику, их превращают в null
 
 ```sql
 select avg(nullif(rating, 0)) from reviews;
+```
+
+#### Первичный ключ при добавлении новой записи
+
+```sql
+insert into goods select max(good_id) + 1, 'Table', 2 from goods;
+```
+
+
+#### Вставка записи с подзапросом 
+
+```sql
+insert into goods (good_id, good_name, type)
+select
+	(select coalesce(max(good_id), 0) + 1 FROM Goods),
+	'Table',
+	gt.good_type_id
+from Goodtypes gt
+where gt.good_type_name = 'equipment';
+```
+
+#### Практика с транзакциями
+
+```sql
+-- begin;
+
+-- update books set
+-- genre = 'Фантастика'
+-- where id = 44;
+
+-- SAVEPOINT step1;
+
+-- select genre from books where id = 44
+
+-- rollback;
+
+-- rollback to savepoint step1;
+
+-- commit;
+```
+
+
+### Удалить все бронирования жилья, в котором отсутствует кухня
+
+```sql
+delete from reservations
+using rooms
+where reservations.room_id = rooms.id
+and rooms.has_kitchen = false;
+```
+
+### Удаление нескольких таблиц одновременно в PostgreSQL (транзакции)
+
+```sql
+begin;
+delete from reservations
+using rooms
+where reservations.room_id = rooms.id
+and rooms.has_kitchen = false;
+
+delete from rooms
+where rooms.has_kitchen = false;
+commit;
+```
+
+#### Измените запрос так, чтобы удалить товары (Goods), имеющие тип деликатесов (delicacies)
+
+```sql
+DELETE FROM Goods 
+USING GoodTypes
+WHERE GoodTypes.good_type_id = Goods.type
+AND Goodtypes.good_type_name = 'delicacies'
+
 ```
