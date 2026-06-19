@@ -171,7 +171,6 @@ select * from familymembers
 where birthday = (select max(birthday) from familymembers)
 ```
 
-
 #### Найти имена всех владельцев жилья, которые сами при этом никогда не снимали жилье
 
 1. Получаем список всех владельцев жилья
@@ -228,7 +227,6 @@ on Reservations.room_id = Rooms.id
 where reservations.price = Rooms.price
 ```
 
-
 #### Выведите список комнат (все поля, таблица **Rooms**), которые по своим удобствам (**has_tv, has_internet, has_kitchen, has_air_con**) совпадают с комнатой с идентификатором "11".
 
 ```sql
@@ -255,4 +253,128 @@ select Familymembers.member_name, (
 	select MAX(unit_price) from Payments where Payments.family_member = FamilyMembers.member_id
 ) as good_price
 from FamilyMembers;
+```
+
+#### Все полёты компании Aeroflot (табличное выражение)
+
+```sql
+with aeroflot_trips as
+	(select plane, town_from, town_to) from company
+		inner join trip on Trip.company = Company.id where name = 'Aeroflot')
+
+select * from Aeroflot_trips;
+```
+
+с книгами
+
+```sql
+with books_items (one, two, three) AS (
+	select title, CONCAT(authors.first_name, ' ', authors.last_name) as author, published_date from books
+	join authors on authors.id = books.author_id
+)
+
+select one, two, three from books_items;
+```
+
+## Вывести возраст (с помощью case)
+
+```sql
+select first_name, last_name, 
+	(case
+		WHEN extract(year from age(now(), birth_date)) >= 18 THEN 'Совершеннолетний'
+		else 'Несовершеннолетний'
+	end as strange)
+from authors
+```
+
+## Определить принадлежность ученика в этапу образования
+
+```sql
+SELECT name,
+CASE
+	-- Извлекаем номер класса из его названия и проверяем вхождение
+	WHEN SUBSTRING(name, 1, POSITION(' ' IN name) - 1) IN ('10', '11') THEN 'Старшая школа'
+	WHEN SUBSTRING(name, 1, POSITION(' ' IN name) - 1) IN ('5', '6', '7', '8', '9') THEN 'Средняя школа'
+	ELSE 'Начальная школа'
+END AS stage
+FROM Class
+```
+
+В другом стиле:
+
+```sql
+SELECT name,
+CASE SUBSTRING(name, 1, POSITION(' ' IN name) - 1)
+  WHEN '11' THEN 'Старшая школа'
+  WHEN '10' THEN 'Старшая школа'
+  WHEN '9' THEN 'Средняя школа'
+  WHEN '8' THEN 'Средняя школа'
+  WHEN '7' THEN 'Средняя школа'
+  WHEN '6' THEN 'Средняя школа'
+  WHEN '5' THEN 'Средняя школа'
+  ELSE 'Начальная школа'
+END AS stage
+FROM Class
+
+```
+
+Альтернативный вариант
+
+```sql
+SELECT 
+    name,
+    CASE
+        WHEN SUBSTRING(name FROM '^\d+') IN ('10', '11') THEN 'Старшая школа'
+        WHEN SUBSTRING(name FROM '^\d+')IN ('5', '6', '7', '8', '9') THEN 'Средняя школа'
+        ELSE 'Начальная школа'
+    END AS stage
+FROM Class;
+```
+
+Отделение имени (для себя)
+
+```sql
+with test AS (select concat(first_name, ' ', last_name) as full_name from authors)
+
+select substring(full_name, 1, position(' ' IN full_name) -1) as name from test
+```
+
+## Категоризация жилья по цене
+
+```sql
+select id, price, 
+	CASE WHEN price >= 150 THEN 'Комфорт-класс' ELSE 'Эконом-класс' END AS category
+	FROM Rooms
+```
+
+## Проверка на boolean
+
+```sql
+SELECT id, has_tv::text FROM Rooms;
+```
+
+```sql
+select id, (
+CASE 
+    WHEN has_tv THEN 'YES' 
+    ELSE 'NO' 
+END
+
+) as has_tv from Rooms
+```
+
+#### Заменить в таблице пустые строки на NULL, существующие значения оставить без изменений
+
+```sql
+update books set
+genre = nullif(genre, '')
+```
+
+
+#### Подготовка данных для сравнения
+
+Агрегатные функции (count, avg, sum) игнорируют null. Если есть заглушки вроде 0 или '', которые портят статистику, их превращают в null
+
+```sql
+select avg(nullif(rating, 0)) from reviews;
 ```
