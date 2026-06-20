@@ -473,3 +473,234 @@ SELECT extract(hour from TIME '14:30:45') AS hour_value
 select member_name, extract(year from age(now(), birthday)) as age
 from FamilyMembers;
 ```
+
+
+### Количество учащихся в каждом классе
+
+```sql
+SELECT
+	Student.first_name,
+	Student.last_name,
+	Student_in_class.class,
+	COUNT(*) OVER (PARTITION BY Student_in_class.class) AS student_count_in_class
+FROM
+	Student_in_class
+JOIN
+	Student ON Student_in_class.student = Student.id;
+```
+
+#### Из таблицы **Rooms** выведите поля **id**, **home_type**, **price** и колонку **avg_price_all** со средней стоимостью жилья среди всех объявлений, используя оконную функцию с **OVER ()**. Округлите результат до двух знаков после запятой.
+
+```
+select
+	Rooms.id,
+	Rooms.home_type,
+	Rooms.price,
+	round(avg(price) over (), 2) as avg_price_all
+from
+	rooms
+```
+
+#### Подсчёт общей суммы затрат на бронирование по каждому пользователю
+
+```
+select user_id, start_date, total as reservation_price,
+sum(total) over (
+	partition by user_id
+	order by start_date
+) as total_expenses
+from reservations
+```
+
+
+#### Сумма трёх последних покупок члена семьи
+
+```sql
+select family_member, date, payment_id, unit_price * amount as payment_amount,
+sum(unit_price * amount) over (
+	partition by family_member
+	order by date
+	rows between 2 preceding and current row
+) as spending_last_3_payments
+
+from payments
+```
+
+#### Из таблицы **Trip** выведите поля **company**, **id**, **time_out** и колонку **departures_so_far** с количеством рейсов этой компании от самого раннего вылета до текущей записи включительно. При одинаковом значении **time_out** более ранней считайте запись с меньшим **id**.
+
+```sql
+select company, id, time_out, COUNT(*) OVER (
+    PARTITION BY company
+    order by time_out, id
+    rows between unbounded preceding and current row
+) as departures_so_far
+
+from Trip;
+```
+
+
+#### Из таблицы **Payments** выведите поля **family_member**, **date**, **payment_id**, стоимость покупки в поле **payment_amount** и колонку **cumulative_total** с суммой всех покупок этого члена семьи от самой ранней до текущей записи включительно.
+
+```sql
+select family_member, date, payment_id, unit_price * amount as payment_amount, SUM(unit_price * amount) OVER(
+    PARTITION BY family_member
+    order by date
+    ROWS BETWEEN unbounded preceding and current row
+) as cumulative_total
+
+from Payments;
+```
+
+
+#### Дополните запрос так, чтобы найти разницу во времени между вылетами среди рейсов одной компании.
+
+В качестве результирующей выборки выведите идентификаторы компаний (в поле **company**), время вылета их рейсов (в поле **time_out**) и время (в поле **time_diff**), прошедшее с предыдущего вылета в формате ЧЧ-MM-СС. Если это был первый рейс компании, то в поле **time_diff** нужно вывести "00:00:00".
+
+```sql
+select company, time_out, timediff(
+	time_out,
+	first_value(time_out) over (
+	partition by company order by time_out
+	rows between 1 preceding and current row
+) as time_diff
+from trip
+```
+
+#### Подсчёт количества уроков у конкретного студента в определённый день
+
+```sql
+CREATE OR REPLACE FUNCTION get_student_lessons_count(student_id INT, target_date DATE)
+RETURNS INT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    lessons_count INT;
+BEGIN
+    SELECT COUNT(*) INTO lessons_count
+    FROM Schedule s
+    INNER JOIN Student_in_class sic ON s.class = sic.class
+    WHERE sic.student = student_id
+      AND s.date = target_date;
+
+    RETURN lessons_count;
+END;
+$$;
+
+-- SELECT get_student_lessons_count(1, '2019-09-01') AS lessons_today;
+```
+
+
+#### Просмотр существующих функций:
+
+```sql
+SELECT routine_name, routine_type
+FROM information_schema.routines
+WHERE routine_type = 'FUNCTION' AND routine_schema = 'public';
+```
+
+#### Удаление функции
+
+```sql
+drop function if exists is_adult(date);
+```
+
+
+#### Просмотр существующих процедур
+
+```sql
+select routine_name, routine_type
+from information_schema.routines
+where routine_type = 'PROCEDURE' AND routine_schema = 'public';
+```
+
+#### Удаление процедуры
+
+```sql
+DROP PROCEDURE IF EXISTS add_student(VARCHAR, VARCHAR, DATE);
+```
+
+
+#### Функция определения возраста студента
+
+```sql
+create or replace function categorize_student_by_age(student_id INT)
+returns varchar(20)
+language plpgsql
+as $$
+declare
+	student_age INT;
+	category VARCHAR(20);
+BEGIN
+	-- Получаем возраст студента
+	SELECT EXTRACT(YEAR FROM AGE(CURRENT_DATE, birthday))
+	INTO student_age
+	FROM Student
+	WHERE id = student_id;
+
+	-- Определяем категорию по возрасту
+	IF student_age < 18 then
+		category := 'Несовершеннолетний';
+	elsif student_age between 18 and 25 then
+		category := 'Молодой';
+	else
+		category := 'Взрослый';
+	END IF;
+
+	RETURN category;
+END;
+$$;
+
+-- Использование функции
+SELECT categorize_student_by_age(1) AS age_category;
+```
+
+
+#### Обновление статистики продаж (каждый час)
+
+```sql
+select cron.schedule(
+	'every_day',
+	'0 * * * *, -- каждый час (в начале часа)
+	$$
+	UPDATE product_stats SET
+		total_sales = (SELECT SUM(amount) FROM orders WHERE product_id = product_stats.product_id),
+		last_updated = NOW()
+	$$
+)
+```
+
+#### Задача на удаление события в конце периода
+
+```sql
+select cron.schedule(
+	'remove_seasonal_discount',
+	'0 0 1 1 *', -- 1 января в полночь
+	$$SELECT cron.unschedule('seasonal_discount')$$
+);
+```
+
+
+#### Просмотр всех запланированных задач
+
+```sql
+SELECT * FROM cron.job;
+```
+
+#### Просмотр истории выполнения задач
+
+```sql
+select * from cron.job_run_details
+order by start_time desc
+limit 10
+```
+
+
+#### Удаление запланированной задачи
+
+```sql
+-- удаление по id
+select cron.unschedule('cleanup_old_logs');
+
+-- удаление по id
+select cron.unschedule(42);
+```
