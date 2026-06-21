@@ -474,7 +474,6 @@ select member_name, extract(year from age(now(), birthday)) as age
 from FamilyMembers;
 ```
 
-
 ### Количество учащихся в каждом классе
 
 ```sql
@@ -512,7 +511,6 @@ sum(total) over (
 from reservations
 ```
 
-
 #### Сумма трёх последних покупок члена семьи
 
 ```sql
@@ -538,7 +536,6 @@ select company, id, time_out, COUNT(*) OVER (
 from Trip;
 ```
 
-
 #### Из таблицы **Payments** выведите поля **family_member**, **date**, **payment_id**, стоимость покупки в поле **payment_amount** и колонку **cumulative_total** с суммой всех покупок этого члена семьи от самой ранней до текущей записи включительно.
 
 ```sql
@@ -550,7 +547,6 @@ select family_member, date, payment_id, unit_price * amount as payment_amount, S
 
 from Payments;
 ```
-
 
 #### Дополните запрос так, чтобы найти разницу во времени между вылетами среди рейсов одной компании.
 
@@ -589,7 +585,6 @@ $$;
 -- SELECT get_student_lessons_count(1, '2019-09-01') AS lessons_today;
 ```
 
-
 #### Просмотр существующих функций:
 
 ```sql
@@ -604,7 +599,6 @@ WHERE routine_type = 'FUNCTION' AND routine_schema = 'public';
 drop function if exists is_adult(date);
 ```
 
-
 #### Просмотр существующих процедур
 
 ```sql
@@ -618,7 +612,6 @@ where routine_type = 'PROCEDURE' AND routine_schema = 'public';
 ```sql
 DROP PROCEDURE IF EXISTS add_student(VARCHAR, VARCHAR, DATE);
 ```
-
 
 #### Функция определения возраста студента
 
@@ -654,7 +647,6 @@ $$;
 SELECT categorize_student_by_age(1) AS age_category;
 ```
 
-
 #### Обновление статистики продаж (каждый час)
 
 ```sql
@@ -679,7 +671,6 @@ select cron.schedule(
 );
 ```
 
-
 #### Просмотр всех запланированных задач
 
 ```sql
@@ -694,7 +685,6 @@ order by start_time desc
 limit 10
 ```
 
-
 #### Удаление запланированной задачи
 
 ```sql
@@ -703,4 +693,76 @@ select cron.unschedule('cleanup_old_logs');
 
 -- удаление по id
 select cron.unschedule(42);
+```
+
+#### Запрос на создание таблицы
+
+```
+create table users (
+	id integer,
+	name varchar(255) not null,
+	age integer not null default 18,
+	company integer,
+	primary key (id),
+	foreign key (company) references companies (id)
+	on delete restrict on update cascade
+)
+```
+
+
+#### Посмотреть доступные столбцы в представлении
+
+```sql
+select column_name, data_type, is_nullable
+from information_schema.columns
+WHERE table_name = 'viewusers'
+```
+
+
+#### Создайте хранимую функцию **get_user_reservation_amount**, которая принимает параметр **input_user_id** типа **INT** и возвращает количество резерваций этого пользователя из таблицы **Reservations**.
+
+```sql
+CREATE FUNCTION get_user_reservation_amount(input_user_id INT)
+RETURNS INT
+LANGUAGE plpgsql
+AS $$
+	DECLARE reservation_count INT;
+BEGIN
+	SELECT COUNT(*)
+	INTO reservation_count -- сохранение результата в переменную
+	FROM reservations
+	WHERE user_id = input_user_id;
+
+	RETURN reservation_count;
+END
+$$;
+```
+
+
+#### Создайте хранимую функцию **get_user_status**, которая принимает параметр **input_user_id** типа **INT** и возвращает статус пользователя: "VIP" если у него больше 3 резерваций, "Regular" если от 1 до 3 резерваций, "New" если резерваций нет. Используйте оператор **IF**.
+
+```sql
+CREATE OR REPLACE FUNCTION get_user_status(input_user_id INTEGER)
+RETURNS VARCHAR(20)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    status varchar(20);
+    cnt integer;
+BEGIN
+    SELECT COUNT(*)
+    INTO cnt
+    FROM Reservations
+    WHERE user_id = input_user_id;
+
+    status := CASE
+        WHEN cnt = 0 THEN 'New'
+        WHEN cnt BETWEEN 1 AND 3 THEN 'Regular'
+        WHEN cnt  > 3 THEN 'VIP'
+        ELSE ''
+    END;
+
+    RETURN status;
+END;
+$$;
 ```
