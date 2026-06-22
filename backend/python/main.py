@@ -1,8 +1,4 @@
-def add(a, b):
-    return a + b
+N = 4
 
-x = 4
-y = 10
-
-sum_result = add(x, y)
-print(f"{x} + {y} = {sum_result}")
+for i in range(1, N+1):
+    print(i * '*')
