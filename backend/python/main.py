@@ -1,4 +1,5 @@
-N = 4
+numbers = [20, 30, 40]
 
-for i in range(1, N+1):
-    print(i * '*')
+print(
+    *numbers
+)
