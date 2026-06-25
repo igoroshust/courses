@@ -9,7 +9,6 @@ for i in range(1, 4):  # строки
     print()  # переход на новую строку после каждой строки таблицы
 ```
 
-
 # Разворот списка
 
 ```python
@@ -47,7 +46,6 @@ print(f"{top student} with score {hightest_score}")
 list(zip(students, grades))  # [("Анна", 95), (...), (...)]
 ```
 
-
 # Вывести первый, последний и третий элемент ввода (при наличии)
 
 ```python
@@ -64,7 +62,6 @@ print(numbers[-1])
 print(numbers[2] if len(numbers) > 2 else 'No third element')
 ```
 
-
 # Распаковка списка
 
 ```python
@@ -72,3 +69,36 @@ numbers = [10, 20, 30, 40]
 
 print(*numbers)  # 10, 20, 30, 40
 ```
+
+
+# Проверка уникальности элементов
+
+```Python
+def are_all_unique(items):
+    return len(set(items)) == len(items)
+
+print(are_all_unique([1, 2, 3, 4, 5]))  # True
+print(are_all_unique([1, 2, 3, 3, 3]))  # False
+```
+
+# Оценка производительности
+
+```Python
+import timeit
+
+data = list(range(10000))
+data_set = set(data)
+
+list_time = timeit.timeit('9999 in data', globals=globals(), number=100_000)  
+set_time = timeit.timeit('9999 in data_set', globals=globals(), number=100_000)
+
+print(f'Список: {list_time:.6f} сек на 100k проверок')
+print(f'Множество: {set_time:.6f} сек на 100k проверок')
+print(f'Множество быстрее в {list_time/set_time:.1f} раз')
+```
+
+- globals() встроенная в Python функция, возвращающая словарь с глобальным пространством имён текущего модуля. Словрь, где ключи - имена глобальных переменных, функций, классов, а значения - сами объекты
+
+`{'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <_frozen_importlib_external.SourceFileLoader object at 0x000002292AAB7410>, '__spec__': None, '__builtins__': <module 'builtins' (built-in)>, '__file__': 'd:\\Applications\\courses\\backend\\python\\main.py', '__cached__': None}`
+
+- В этом примере передаём globals timeit.timeit() для корректного выполнения строки `'9999 in data'`, так как изначально она выполняет его в пустом окружении. А так выполняет в том же окружении, где определены data и data_set.
