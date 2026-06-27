@@ -70,7 +70,6 @@ numbers = [10, 20, 30, 40]
 print(*numbers)  # 10, 20, 30, 40
 ```
 
-
 # Проверка уникальности элементов
 
 ```Python
@@ -102,3 +101,109 @@ print(f'Множество быстрее в {list_time/set_time:.1f} раз')
 `{'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <_frozen_importlib_external.SourceFileLoader object at 0x000002292AAB7410>, '__spec__': None, '__builtins__': <module 'builtins' (built-in)>, '__file__': 'd:\\Applications\\courses\\backend\\python\\main.py', '__cached__': None}`
 
 - В этом примере передаём globals timeit.timeit() для корректного выполнения строки `'9999 in data'`, так как изначально она выполняет его в пустом окружении. А так выполняет в том же окружении, где определены data и data_set.
+
+# Подсчитать количество упоминаний слова в словаре
+
+Решение учителя
+
+```Python
+text = "one two three one two"
+
+words = text.split()
+counts = {}
+
+for word in words:
+  if word in counts:
+    counts[word] += 1
+    # Через get()
+    counts[word] = counts.get(word, 0) + 1
+  else:
+    counts[word] = 1
+
+  
+
+print(counts)  # {'one': 2, 'two': 2, 'three': 1}
+```
+
+Рекомендация (оптимизация, чистота)
+
+```Python
+from collections import Counter
+
+text = "one two three one two"
+
+counts = Counter(text.split())  # Counter({'one': 2, ...})
+```
+
+Платформа
+
+```Python
+def count_frequency(text):
+    result = {}
+    for i in text.split():
+        result[i] = result.get(i, 0) + 1
+
+    return result
+
+text = 'the quick brown fox jumps over the lazy dog fox'
+
+word_counts = count_frequency(text)
+
+print(
+    word_counts
+)
+```
+
+Counter
+
+```Python
+from collections import Counter
+
+def count_frequency(text: str) -> dict:
+  return dict(Counter(text.split()))
+
+text = input()
+word_counts = count_frequency(text)
+print(word_counts)
+```
+
+
+
+# Создать словарь с оценками для студентов
+
+Моё решение
+
+```Python
+students = 'Igor Egor Oleg Natalia Sean Walter'
+scores = '90 80 30 40 50 49'
+
+def create_total_dict(item1, item2):
+    return dict(zip(item1.split(), map(int, item2.split())))
+
+print(create_total_dict(students, scores))
+```
+
+Через генератор словаря
+
+```Python
+students = 'Igor Egor Oleg Natalia Sean Walter'
+scores = '90 80 30 40 50 49'
+
+def create_total_dict(item1, item2):
+    students = item1.split()
+    scores = map(int, item2.split())
+    return {name: score for name, score in zip(students, scores)}  # for name, score in [('Igor', 90), ('Egor', 80)]:
+
+print(create_total_dict(students, scores))
+```
+
+Платформенное
+
+```Python
+names = input().split()
+grades = list(map(int, input().split()))
+
+students = dict(zip(names, grades))
+
+print(students)
+```
