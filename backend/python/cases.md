@@ -206,7 +206,6 @@ students = dict(zip(names, grades))
 print(students)
 ```
 
-
 # Разница дат
 
 В этой задаче вам предстоит создать программу для выполнения операций с датами. Пользователь вводит дату и количество дней, которое нужно прибавить или вычесть из этой даты. Ваша программа должна вычислить новую дату и вывести ее.
@@ -218,7 +217,7 @@ print(students)
 
 ## Выходные данные
 
-* Одна строка, содержащая новую дату в том же формате ДД.ММ.ГГГГ
+Одна строка, содержащая новую дату в том же формате ДД.ММ.ГГГГ
 
 ```Python
 from datetime import datetime, timedelta
@@ -235,4 +234,11 @@ new_value = current_value + timedelta(days=days)
 # Форматируем обратно в строку
 result_date = new_value.strftime("%d.%m.%Y")
 print(result_date)
+```
+
+# Заменить двойные слеши на одинарные
+
+```Python
+s = 's = "C:\\Users\\igoroshust\\AppData\\Roaming\\Python\\Python314\\site-packages"
+clean = s.replace('\\\\', '\\')  # C:\Users\igoroshust\AppData\Roaming\Python\Python314\site-packages
 ```
