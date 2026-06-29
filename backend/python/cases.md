@@ -1,5 +1,121 @@
 
 
+
+
+# Анализ данных о продажах
+
+Необходимо сохранить данные о продажах в CSV, а затем - проанализировать их и сохранить результаты в JSON
+
+```Python
+import json
+import csv
+
+
+sales = [
+    ['Date', 'Product', 'Category', 'Price', 'Quantity'],
+    ['2023-01-05', 'HP Laptop', 'Electronics', '45000', '2'],
+    ['2023-01-10', 'Apple Smartphone', 'Electronics', '85000', '3'],
+    ['2023-01-15', 'Book "Python"', 'Books', '1200', '5'],
+    ['2023-02-10', 'Microwave', 'Home Appliances', '7000', '1']
+]
+
+
+# Записываем в csv
+with open('sales.csv', 'w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerows(sales)
+  
+  
+# Читаем и анализируем данные
+with open('sales.csv', 'r', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    headers = next(reader)  # Пропускаем заголовки
+  
+    # Подготовка переменных для анализа
+    total_revenue = 0
+    sales_by_category = {}
+  
+    # Анализ данных
+    for row in reader:
+        date, product, category, price, quantity = row
+        revenue = float(price) * int(quantity)
+      
+        # Общая выручка
+        total_revenue += revenue
+      
+        # Выручка по категориям
+        if category in sales_by_category:
+            sales_by_category[category] += revenue
+        else:
+            sales_by_category[category] = revenue
+          
+    # Вывод результатов анализа
+    print(f'\nОбщая выручка: {total_revenue} rub.')
+    print(f'\nВыручка по категориям:')
+    for category, rev in sales_by_category.items():
+        print(f'{category}: {rev} rub.')
+      
+      
+# Сохраняем результаты анализа
+results = {
+    "total_revenue": total_revenue,
+    "sales_by_category": sales_by_category
+}
+
+# Формируем JSON-файл с результатами
+with open('sales_analysis.json', 'w', encoding='utf-8') as file:
+    json.dump(results, file, ensure_ascii=False, indent=2)
+    print('Serialized in JSON!')
+  
+  
+# Читаем JSON-файл
+with open('sales_analysis.json', 'r', encoding='utf-8') as file:
+    save_results = json.load(file)
+  
+    print('\nContents of the results JSON file:')
+    print(json.dumps(save_results, ensure_ascii=False, indent=2))
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+# Читаем csv
+
+# Логика
+
+# Сериализуем в JSON
+
+# Читаем JSON
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Чтение и обработка конфигурационного файла
 
 ```Python
@@ -31,12 +147,12 @@ def read_config(filename):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-          
+        
             # Разделяем ключ и значение
             if '=' in line:
                 key, value = line.split('=', 1)
                 config[key.strip()] = value.strip()
-              
+            
     return config
 
 # Считываем конфигурацию
@@ -54,7 +170,6 @@ print(f"Порт веб-сервера: {app_config['database_port']}")
 
 print(f"Режим отладки: {app_config['debug_mode']}")
 ```
-
 
 # Таблица умножения
 

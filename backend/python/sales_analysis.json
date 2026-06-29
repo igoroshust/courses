@@ -1,0 +1,8 @@
+{
+  "total_revenue": 358000.0,
+  "sales_by_category": {
+    "Electronics": 345000.0,
+    "Books": 6000.0,
+    "Home Appliances": 7000.0
+  }
+}

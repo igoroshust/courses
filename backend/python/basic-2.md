@@ -490,7 +490,6 @@ with open('example.txt', 'r') as f:
     print(f.tell())  # 22 (конец строки)
 ```
 
-
 #### Указание пути при работе с файлами (os)
 
 ```Python
@@ -512,8 +511,7 @@ name, ext = os.path.splitext(basename)
 print('Имя файла: ', name, 'Расширение: ', ext)
 ```
 
-
-#### Указание пути при работе с файлами (Path) 
+#### Указание пути при работе с файлами (Path)
 
 cwd(), exists(), stem, suffix
 
@@ -536,7 +534,6 @@ print(f'Файл {sample_path}: {sample_path.exists()}')
 document_path = Path("path/to/document.pdf")
 print(f"Имя файла: {document_path.stem}, расширение: {document_path.suffix}")
 ```
-
 
 ## Особенности работы с текстовыми файлами
 
@@ -581,7 +578,7 @@ with open('example.txt', 'r') as f:
 - **Задержка**. Чтение всего файла сразу занимает время, и программа "зависает" до завершения чтения
 - **Неэффективность**. Часто для обработки нужны не все данные сразу, а последовательный доступ к ним.
 
-#### Более эффективный подход – построчное чтение. 
+#### Более эффективный подход – построчное чтение.
 
 В памяти находится только одна строка за раз. Обработка начинается немедленно, не нужно ждать загрузки всего файла. Можно прервать чтение в любой момент, если нужные данные не были найдены.
 
@@ -589,20 +586,18 @@ with open('example.txt', 'r') as f:
 with open('big_file.txt', 'w') as f:
     for i in range(1000):
         f.write(f"Строка №{i+1}\n")
-      
+  
 # Эффективное чтение по строкам
 with open('big_file.txt', 'r') as file:
     line_count = 0
     for line in file:
         line_count += 1
-      
+  
         if line_count <= 5:
             print(line.strip())
-          
+      
     print(f'Всего строк: {line_count}')
-            
 ```
-
 
 #### Чтение фиксированными блоками
 
@@ -615,13 +610,333 @@ with open('big_file.txt', 'r') as file:
   
     while True:
         block = file.read(block_size)
-      
+  
         if not block:  # Если блок пустой, значит достигнут конец файла
             break
-      
+  
         blocks_read += 1
         if blocks_read <= 2:  # Показываем только первые два блока
             print(f'Блок {blocks_read}: {block[:50]}...')
-          
-    print(f'Всего прочитано блоков: {blocks_read}')       
+      
+    print(f'Всего прочитано блоков: {blocks_read}')
 ```
+
+# Форматы JSON и CSV
+
+Чтобы данные понимал не только наш скрипт, но и другие программы, были придуманы готовые форматы. Два наиболее частых - JSON и CSV. Json (javascript object notation) - формат обмена данными в вебе и API, ложится на словари и списки почти один в один. CSV (Comma-Separated Values) - простой табличный формат; открывается в Excel и Google Таблицах.
+
+## JSON
+
+JSON (Javascript Object Notation) – это текстовый формат обмена данными, похожий на списки и словари в Python. Он легко читается как человеком, так и машиной.
+
+Типы данных json:
+
+- Объекты (словари): `{"name": "Alice", ...}`
+- Массивы (списки): `[1, 2, 3, 4]`
+- Строки: `Hello, world`
+- Числа: `42`
+- Логические значения: `true`, `false`
+- `null`: (в P это None)
+
+#### Работа с json
+
+```Python
+import json
+
+person = {
+    "name": "Ann",
+    'age': 28,
+    "city": "Moscow",
+    "languages": ["Python", "JavaScript"]
+}
+
+# Преобразование Python-объекта в JSON
+json_string = json.dumps(person, ensure_ascii=False, indent=2)  # 'str'
+
+# Преобразование JSON в Python-объект
+parsed_data = json.loads(json_string)  # 'dict'
+
+print(
+    f'''Name: {parsed_data['name']}
+Age: {parsed_data['age']}
+City: {parsed_data['city']}
+Languages: {', '.join(parsed_data['languages'])}'''
+)
+```
+
+#### Запись в JSON и чтение из файла
+
+```Python
+import json
+
+# Данные о студентах
+students = [
+    {"id": 1, "name": "Ivan", "scores": [85, 90, 78]},
+    {"id": 2, "name": "Marry", "scores": [92, 88, 95]}
+]
+
+# Запись в файл
+with open('students.json', 'w', encoding='utf-8') as file:
+    json.dump(students, file, ensure_ascii=False, indent=2)
+    print("Данные записаны в файл students.json")
+  
+
+# Чтение из файла
+with open('students.json', 'r', encoding='utf-8') as file:
+    loaded_students = json.load(file)
+    print(f'Loaded {len(loaded_students)} students:')
+  
+    for student in loaded_students:
+        avg_score = sum(student['scores']) / len(student['scores'])
+        print(f'{student['name']}: average score: {avg_score:.1f}')
+```
+
+file (второй аргумент в json.dump) - это файловый объект, открытый для записи.
+
+#### Основные методы модуля json
+
+| Метод           | Описание                                        | Доп                                                                                                                                       |
+| -------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| json.dumps(obj)      | Преобразует объект P в строку J | Возвращает строку, которую после можно отправить по сети или записать в файл |
+| json.dump(obj, file) | Записывает объект P в J-файл       | Ничего не возвращает (только None), его задача - сразу сохранить данные                 |
+| json.loads(str)      | Преобразует J-строку в P-объект | На вход ждёт str или bytes                                                                                                      |
+| json.load(file)      | Читает J из файла в P-объект        | На вход принимает файловый объект                                                                               |
+
+Параметр `ensure_ascii=False` позволяет корректно сохранять русские буквы и другие символы Unicode, а `indent` делает вывод более читаемым.
+
+## CSV (Comma-Separated Values)
+
+CSV (Comma-Separated Values) – это простой текстовый формат для представления табличных данных, где строки таблицы - это строки файла, а столбцы разделены запятыми (или другими разделителями).
+
+```Python
+Имя, Возраст, Город
+Анна, 28, Москва
+Иван, 35, Санкт-Петербург
+```
+
+#### Запись и чтение данных (данные в виде списка)
+
+```Python
+import csv
+
+data = [
+    ['Name', 'Age', 'City'],  # Заголовки
+    ['Ann', '28', 'Moscow'], 
+    ['Ivan', '35', 'Spb'], 
+    ['Marry', '22', 'Kazan']
+]
+
+# Запись в csv-файл
+with open('people.csv', 'w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
+    print('Данные записаны в файл people.csv')
+
+
+# Чтение из CSV-файла
+with open('people.csv', 'r', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    print(f'reader: {reader}')
+  
+    # Чтение заголовков (первая строка)
+    headers = next(reader)
+    print(f'\nHeaders: {headers}')
+  
+    # Чтение данных
+    print('\nData:')
+    for row in reader:
+        print(f'{row[0]}, {row[1]} age, city {row[2]}'
+```
+
+
+- csv.writer(file) - создаёт объект-писатель, который знает, как правильно форматировать строки под csv: ставить разделители (по умолчанию - запятые), экранировать кавычки и т.д. writer - не функция, а объект, у которого есть методы вроде writerow и writerows.
+- csv.reader(file) - создаёт объект-читатель, который разбирает csv-файл обратно в список списков. reader - итератор, его можно перебирать в цикле for, a `next()` позволяет вытянуть один элемент вручную
+- writer.writerows(data) - записывает список строк в CSV-файл
+- next(reader) - читает первую строку из CSV и возвращает её как список
+- newline='' - критически важный параметр при работе с csv в python. В windows текстовый режим ('w') автоматически заменяет \n на \r\n, для csv это проблема в виде лишних пустых строк между строками данных. Модуль csv сам управляет переносами строк и ожидает, что файл открыт без автоматической конвертации. Указание newline='' отключает эту автоматическую замену: файл пишется ровно так, как этого хочет csv.
+
+
+
+#### Использование DictReader и DictWriter (данные в виде словаря)
+
+```Python
+import csv
+
+data = [
+    {'Name': 'Алексей', 'Profession': 'Инженер', 'Salary': 85000},
+    {'Name': 'Екатерина', 'Profession': 'Дизайнер', 'Salary': 75000},
+    {'Name': 'Сергей', 'Profession': 'Программист', 'Salary': 110000}
+]
+
+# Запись в CSV с использованием DictWriter
+with open('employees.csv', 'w', newline='', encoding='utf-8') as file:
+    fieldnames = ['Name', 'Profession', 'Salary']  # Порядок и названия колонок
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+  
+    writer.writeheader()  # Запись заголовков
+    writer.writerows(data)  # Запись данных
+    print('Данные сотрудников записаны в файл')
+  
+# Чтение с использованием DictReader
+with open('employees.csv', 'r', encoding='utf-8') as file:
+    reader = csv.DictReader(file)
+  
+    print('Employees:')
+    for row in reader:
+        print(f'Name: {row['Name']}, Profession: {row['Profession']}, Salary: {row['Salary']}')
+```
+
+
+`csv.DictWriter` и `csv.DictReader` - это удобные обёртки над обычными `writer`/`reader`, которые работают не со списками, а со словарями. Это облегчает код, позволяя обращаться к элементам по ключам вместо индексов.
+
+- DictWriter создаёт объект, который знает, как превратить словарь в строку CSV: берёт значения по ключам из fieldnames и ставит их в нужные столбцы. Сам расставляет запятиые и обрабатывает кавычки, если в данных встречаются спецсимволы.
+- DictReader - автоматически считает первую строку файла как заголовки, который становятся ключами словаря. Каждая строка csv превращается в словарь `row['Name']`
+- writeheader() - пишет первую строку файла
+- writerows(data) - проходит по списку словарей и для каждого делает строку CSV. writerow(row) - для одной записи
+
+
+
+### Особенности работы с CSV
+
+- **Разделители**. Хотя csv расшифровывается как "значения, разделённые запятыми", на практике могут использоваться и другие разделители (точка с запятой, табуляция)
+- **Кавычки**. Если значение содержит разделитель или кавычки, оно заключается в кавычки
+- **Экранирование**. Если внутри значения есть кавычки, оно экранируется
+
+#### Чтение/запись с разделителем
+
+```Python
+import csv
+
+data = [
+    ['Товар', 'Цена', 'Наличие'],
+    ['Ноутбук', '45000', 'Да'],
+    ['Смартфон', '25000', 'Нет']
+]
+
+# Запись с использованием точки с запятой
+with open('products.csv', 'w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file, delimiter=';')
+    writer.writerows(data)
+    print('Данные записаны с разделителем ";"')
+
+# Чтение с использованием правильного разделителя
+with open('products.csv', 'r', encoding='utf-8') as file:
+    reader = csv.reader(file, delimiter=';')
+    for row in reader:
+        print('  '.join(row))
+      
+"""
+Товар  Цена  Наличие
+Ноутбук  45000  Да
+Смартфон  25000  Нет
+"""
+```
+
+
+#### Анализ данных о продажах
+
+Необходимо сохранить данные о продажах в CSV, а затем - проанализировать их и сохранить результаты в JSON
+
+```Python
+import json
+import csv
+
+
+sales = [
+    ['Date', 'Product', 'Category', 'Price', 'Quantity'],
+    ['2023-01-05', 'HP Laptop', 'Electronics', '45000', '2'],
+    ['2023-01-10', 'Apple Smartphone', 'Electronics', '85000', '3'],
+    ['2023-01-15', 'Book "Python"', 'Books', '1200', '5'],
+    ['2023-02-10', 'Microwave', 'Home Appliances', '7000', '1']
+]
+
+
+# Записываем в csv
+with open('sales.csv', 'w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerows(sales)
+  
+  
+# Читаем и анализируем данные
+with open('sales.csv', 'r', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    headers = next(reader)  # Пропускаем заголовки
+  
+    # Подготовка переменных для анализа
+    total_revenue = 0
+    sales_by_category = {}
+  
+    # Анализ данных
+    for row in reader:
+        date, product, category, price, quantity = row
+        revenue = float(price) * int(quantity)
+      
+        # Общая выручка
+        total_revenue += revenue
+      
+        # Выручка по категориям
+        if category in sales_by_category:
+            sales_by_category[category] += revenue
+        else:
+            sales_by_category[category] = revenue
+          
+    # Вывод результатов анализа
+    print(f'\nОбщая выручка: {total_revenue} rub.')
+    print(f'\nВыручка по категориям:')
+    for category, rev in sales_by_category.items():
+        print(f'{category}: {rev} rub.')
+      
+      
+# Сохраняем результаты анализа
+results = {
+    "total_revenue": total_revenue,
+    "sales_by_category": sales_by_category
+}
+
+# Формируем JSON-файл с результатами
+with open('sales_analysis.json', 'w', encoding='utf-8') as file:
+    json.dump(results, file, ensure_ascii=False, indent=2)
+    print('Serialized in JSON!')
+  
+  
+# Читаем JSON-файл
+with open('sales_analysis.json', 'r', encoding='utf-8') as file:
+    save_results = json.load(file)
+  
+    print('\nContents of the results JSON file:')
+    print(json.dumps(save_results, ensure_ascii=False, indent=2))
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+# Читаем csv
+
+# Логика
+
+# Сериализуем в JSON
+
+# Читаем JSON
+```
+
+
+В этом примере:
+
+1. Создан CSV-файл с данными о продажах
+2. Данные прочитаны и рассчитана выручка по категориям
+3. Сохранены результаты анализа в JSON-файл
+4. Прочитан сохранённый JSON, чтобы убедиться в корректности
