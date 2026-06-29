@@ -1,3 +1,61 @@
+
+
+# Чтение и обработка конфигурационного файла
+
+```Python
+# Пример конфигурационного файла
+config_text = """
+# Параметры БД
+database_host = localhost
+database_port = 5432
+database_name = myapp
+database_user = admin
+database_password = secret123
+
+# Параметры веб-сервера
+server_port = 8080
+debug_mode = True
+log_level = INFO
+"""
+
+with open('config.ini', 'w') as config_file:
+    config_file.write(config_text)
+  
+# Чтение и обработка конфигурации
+def read_config(filename):
+    config = {}
+  
+    with open(filename, 'r') as file:
+        for line in file:
+            # Пропускаем пустые строки и комментарии
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+          
+            # Разделяем ключ и значение
+            if '=' in line:
+                key, value = line.split('=', 1)
+                config[key.strip()] = value.strip()
+              
+    return config
+
+# Считываем конфигурацию
+app_config = read_config('config.ini')
+
+# Используем параметры
+print("Конфигурация приложения:")
+
+
+print(f"База данных: {app_config['database_name']} на {app_config["database_host"]}")
+
+print(f"Пользователь БД: {app_config['database_user']}")
+
+print(f"Порт веб-сервера: {app_config['database_port']}")
+
+print(f"Режим отладки: {app_config['debug_mode']}")
+```
+
+
 # Таблица умножения
 
 ```python

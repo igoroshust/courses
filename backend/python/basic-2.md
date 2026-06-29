@@ -1,3 +1,21 @@
+# Открытие файла для чтения (режим по умолчанию - 'r')
+
+file = open('example.txt', 'r')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+
+# Открытие файла для записи
+
+file = open('new_file.txt', 'w')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+
+# Открытие бинарного файла для чтения
+
+file = open('image.jpg', 'rb')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+
   
 
 # Библиотеки
@@ -191,14 +209,11 @@ PyPI (Python Package Index) – это хранилище программног
 | PyQt                 | Создание настольных приложений                                                    | Графические интерфейсы (GUI)                              |
 | Pygame               | Создание игр и мультимедийных приложений                                  | Разработка 2D-игр                                                 |
 
-
-
 ## Виртуальное окружение
 
 Виртуальное окружение (venv) – это изолированная среда Python, в которой можно устанавливать свои пакеты, не влияя на другие проекты или системный Python.
 
 ![1782648427352](image/basic-2/1782648427352.png)
-
 
 ## Модули
 
@@ -212,7 +227,6 @@ PyPI (Python Package Index) – это хранилище программног
 
 **Импорт всех элементов** - не рекомендуемый способ, добавляет все функции модуля в пространство имён: теряется источник имён, легко получить конфликт. Нормально только в REPL и иногда в тестах.
 
-
 ### Где Python ищет модули
 
 Когда мы пишем `import mymath`, Python ищет файл mymath.py по списку директорий из `sys.path`. По умолчанию туда входят:
@@ -223,10 +237,9 @@ PyPI (Python Package Index) – это хранилище программног
 
 Поиск прекращается на первой найденной директории. Если рядом со скриптом лежит файл с тем же именем, что и стандартный модуль, Python подхватит наш файл вместо системного. Классическая ловушка: создать кастомный модуль random и перетереть встроенный `random`.
 
-
 ### Специальные переменные модуля
 
-Модули в Python имеют несколько специальных переменных. 
+Модули в Python имеют несколько специальных переменных.
 
 ##### `__name__`
 
@@ -250,7 +263,6 @@ if __name__ == "__main__":
   	print(f'PI = {PI}')
   	print(f'add(2, 3) = {add(2, 3)}')
 ```
-
 
 ##### `__all__`
 
@@ -279,10 +291,9 @@ def _round_helper(value):
 
 Через `from mymath import *` пришли только PI и add, для импорта остальных нужно импортировать конкретно `from mymath import subtract`.
 
-
 ### Пакеты
 
-Пакет - директория с файлом `__init__.py`. Когда модуль `mymath` разрастается, его можно разделить на несколько файлов и собрать в пакет. Когда выполняется команда `import mathlib`, Python видит этот `__init__.py` и понимает, что директория - это импортируемый пакет. 
+Пакет - директория с файлом `__init__.py`. Когда модуль `mymath` разрастается, его можно разделить на несколько файлов и собрать в пакет. Когда выполняется команда `import mathlib`, Python видит этот `__init__.py` и понимает, что директория - это импортируемый пакет.
 
 .Пример `__init__.py`
 
@@ -300,7 +311,6 @@ from mathlib.advanced import multiply, divide
 
 Если пакет разрастается, его можно делить над подпакеты со своими init.py.
 
-
 ### Правила организации модуля
 
 1. **Единая ответственность**. Каждый модуль отвечает за одну конкретную задачу: `auth`, `formatters`. Если в файле две несвязанные темы, пора разделять.
@@ -314,3 +324,304 @@ from mathlib.advanced import multiply, divide
    5. Блок `if __name__ == "__main__"`: код, который выполняется только при прямом запуске файла.
 4. **Явные импорты:** `from module import specific_thing` вместо `from module import *`
 5. **Приватные имена c** `b`. Функции и переменные для внутреннего пользования нужно начинать с подчёркивания (`_helper`, `_INTERNAL_CONST`). Это сигнал для других: "Не полагайтесь на это снаружи".
+
+# Работа с файлами
+
+Переменная живёт только во время работы программы. Для сохранения данные записывают файлом на диск, при следующем запуске - читают снова. Так устроена работа приложений.
+
+**Файл** - именованный набор данных на диске.
+
+Основные операции с файлами: открытие, чтение, запись, закрытие (освобождаем системные ресурсы)
+
+## Открытие
+
+Функция `open(file, mode)` открывает файл в указанном режиме. Возвращает объект файла, который можно использовать для чтения, записи и других операций с файлом.
+
+Режимы открытия файлов
+
+| Режим | Описание                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------- |
+| r          | Чтение (по умолчанию)                                                              |
+| w          | Запись (создание нового или перезапись существующего) |
+| a          | Добавление записи в конец файла                                          |
+| b          | Бинарный режим (rb для чтения бинарного файла)                  |
+| t          | Текстовый режим                                                                       |
+| +          | Обновление (чтение + запись)                                                  |
+
+### Пример
+
+```Python
+write_file = open('example.txt', 'w')
+write_file.write('hello\n')
+write_file.write('hi')
+write_file.close()
+
+file = open('example.txt', 'r')
+
+
+print(
+    file.read(),
+    file.mode
+)
+```
+
+```Python
+# Открытие файла для чтения (режим по умолчанию - 'r')
+file = open('example.txt', 'r')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+
+# Открытие файла для записи
+file = open('new_file.txt', 'w')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+
+# Открытие бинарного файла для чтения
+file = open('image.jpg', 'rb')
+print(f"Файл открыт в режиме: {file.mode}")
+file.close()
+```
+
+### Чтение файла
+
+```Python
+with open('example.txt', 'a+') as f:
+    f.write('Первая строка\nВторая строка\nТретья строка')
+
+# Целиком
+with open('example.txt', 'r') as file:
+    content = file.read()
+    print('Содержимое файла: ')
+
+# Построчно
+with open('example.txt', 'r') as file:
+    print('Чтение файла построчно: ')
+    for line in file:
+        print('Строка: ', line.strip())
+
+# Чанки символов
+with open('example.txt', 'r') as file:
+    first_10_chars = file.read(10)
+    print(first_10_chars)
+    next_10_chars = file.read(10)
+    print( next_10_chars)
+
+# Список строк
+with open('example.txt', 'r') as file:
+    lines = file.readlines()
+    print(f'Список строк: {lines}')
+```
+
+### Запись
+
+```Python
+# Запись строки
+with open('example.txt', 'w') as f:
+    f.write('first line\n')
+    f.write('second line')
+
+
+# Несколько строк
+lines = ["first", "second", "third"]
+with open('example.txt', 'w') as f:
+    for line in lines:
+        f.write(line + '\n')
+# writelines
+with open('example.txt', 'w') as f:
+    f.writelines([line + '\n' for line in lines])
+
+# Добавление в конец
+with open('example.txt', 'a') as f:
+  f.write('asd')
+  
+with open('example.txt', 'r') as f:
+    content = f.read()
+    print(content)
+```
+
+## Контекстный менеджер `with`
+
+Контекстный менеджер with гарантирует, что файл будет закрыт даже при возникновении ошибки. Прописывая логику вручную, легко забыть про `close()`.
+
+### Обработка исключений при работе с файлами:
+
+- Файл не существует (FileNotFoundError)
+- Недостаточно прав для доступа к фалу (PermissionError)
+- Диск заполнен
+- Другие ошибки
+
+```Python
+try:
+    with open("unknown.txt", "r") as f:
+        content = f.read()
+except FileNotFoundError:
+    print("Файл не найден")
+except PermissionError:
+    print("Недостаточно прав")
+except Exception as e:
+    print("Произошла ошибка: ", e)
+```
+
+#### Перемещение указателя
+
+```Python
+with open('example.txt', 'r') as f:
+    print(f.read(6))  # first
+  
+    # Перемещение указателя на начало файла
+    f.seek(0)
+    print(f.read(3))  # fir
+  
+    # Перемещение указателя на начало файла
+    f.seek(10)
+    print(f.read(3))  # ond
+```
+
+#### Получение текущей позиции
+
+```Python
+with open('example.txt', 'r') as f:
+    print(f.tell())  # 0
+  
+    f.read(5)
+    print(f.tell())  # 5
+  
+    f.readlines()
+    print(f.tell())  # 22 (конец строки)
+```
+
+
+#### Указание пути при работе с файлами (os)
+
+```Python
+import os
+
+# Текущий рабочий каталог
+current_dir = os.getcwd()  # d:\Applications\courses\backend\python
+
+# Объединение путей
+combined = os.path.join(current_dir, 'data', 'file.txt')  # d:\Applications\courses\backend\python\data\file.txt
+
+# Проверка наличия
+is_exists = os.path.exists('example.txt')
+
+# Получение имени файла и расширения
+filename = os.path.join(os.getcwd(), 'example.txt')  # d:\Applications\courses\backend\python\example.txt
+basename = os.path.basename(filename)  # example.txt
+name, ext = os.path.splitext(basename)
+print('Имя файла: ', name, 'Расширение: ', ext)
+```
+
+
+#### Указание пути при работе с файлами (Path) 
+
+cwd(), exists(), stem, suffix
+
+```Python
+from pathlib import Path
+
+# Текущий каталог
+current_path = Path.cwd()
+print(f'Текущий каталог: {current_path}')  # d:\Applications\courses\backend\python
+
+# Создание пути
+data_file = current_path / 'data' / 'info.txt'
+print(f'Путь к файлу: {data_file}')
+
+# Проверка наличия
+sample_path = Path('example.txt')
+print(f'Файл {sample_path}: {sample_path.exists()}')
+
+# Получение имени и расширения
+document_path = Path("path/to/document.pdf")
+print(f"Имя файла: {document_path.stem}, расширение: {document_path.suffix}")
+```
+
+
+## Особенности работы с текстовыми файлами
+
+**Главная -** **учёт кодировки**. Кодировка - способ представления символов в виде байтов. Разные кодировки используют разные схемы для отображения символов. Чтобы компьютер мог работать с текстом на разных языках, были разработаны различные системы кодирования символов:
+
+- ASCII (american standard code for information interchange) - самая простая кодировка из 128 символов (только латинские буквы, цифры и базовые символы)
+- UTF-8 (unicode transformation format)- современный стандарт, поддерживающий все языки мира (включая эмодзи)
+- Windows-1251 (cp1251) - кодировка для кириллицы, популярная в Windows
+
+В P рекомендуется UTF-8 всегда, особенно если текст содержит не только латинские буквы
+
+```Python
+# Запись текста в разных кодировках
+text = "Привет, мир! Hello, world! 你好，世界！"
+
+#  UTF-8 (стандарт для международных текстов)
+with open('example.txt', 'w', encoding='utf-8') as f:
+    f.write(text)
+  
+  
+# ASCII
+try:
+    with open('text_ascii.txt', 'w', encoding='ascii') as f:
+        f.write(text)
+except UnicodeEncodeError as e:
+    print(f'Ошибка кодирования ASCII: {e}')
+  
+# cp1251 (кириллица на Windows)
+with open('text_cp1251.txt', 'w', encoding='cp1251') as f:
+    # Китайские символы будут заменены на ?
+    f.write(text)
+  
+with open('example.txt', 'r') as f:
+    print(f.read())
+```
+
+### Работа с большими файлами
+
+При работе с большими файлами важно не загружать в память всё содержимое целиком, это может привести к проблемам:
+
+- **Потребления памяти.** Если файл большой (гиги), он может занять всю доступную оперативную память, что приведёт к замедлению или даже сбою программы
+- **Задержка**. Чтение всего файла сразу занимает время, и программа "зависает" до завершения чтения
+- **Неэффективность**. Часто для обработки нужны не все данные сразу, а последовательный доступ к ним.
+
+#### Более эффективный подход – построчное чтение. 
+
+В памяти находится только одна строка за раз. Обработка начинается немедленно, не нужно ждать загрузки всего файла. Можно прервать чтение в любой момент, если нужные данные не были найдены.
+
+```Python
+with open('big_file.txt', 'w') as f:
+    for i in range(1000):
+        f.write(f"Строка №{i+1}\n")
+      
+# Эффективное чтение по строкам
+with open('big_file.txt', 'r') as file:
+    line_count = 0
+    for line in file:
+        line_count += 1
+      
+        if line_count <= 5:
+            print(line.strip())
+          
+    print(f'Всего строк: {line_count}')
+            
+```
+
+
+#### Чтение фиксированными блоками
+
+Для большего контроля над процессом чтения
+
+```Python
+with open('big_file.txt', 'r') as file:
+    block_size = 100  # Размер блока в байтах
+    blocks_read = 0
+  
+    while True:
+        block = file.read(block_size)
+      
+        if not block:  # Если блок пустой, значит достигнут конец файла
+            break
+      
+        blocks_read += 1
+        if blocks_read <= 2:  # Показываем только первые два блока
+            print(f'Блок {blocks_read}: {block[:50]}...')
+          
+    print(f'Всего прочитано блоков: {blocks_read}')       
+```
