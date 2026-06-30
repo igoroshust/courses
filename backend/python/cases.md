@@ -35,23 +35,23 @@ with open('sales.csv', 'r', encoding='utf-8') as file:
     for row in reader:
         date, product, category, price, quantity = row
         revenue = float(price) * int(quantity)
-    
+  
         # Общая выручка
         total_revenue += revenue
-    
+  
         # Выручка по категориям
         if category in sales_by_category:
             sales_by_category[category] += revenue
         else:
             sales_by_category[category] = revenue
-        
+      
     # Вывод результатов анализа
     print(f'\nОбщая выручка: {total_revenue} rub.')
     print(f'\nВыручка по категориям:')
     for category, rev in sales_by_category.items():
         print(f'{category}: {rev} rub.')
-    
-    
+  
+  
 # Сохраняем результаты анализа
 results = {
     "total_revenue": total_revenue,
@@ -70,32 +70,6 @@ with open('sales_analysis.json', 'r', encoding='utf-8') as file:
   
     print('\nContents of the results JSON file:')
     print(json.dumps(save_results, ensure_ascii=False, indent=2))
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-# Читаем csv
-
-# Логика
-
-# Сериализуем в JSON
-
-# Читаем JSON
 ```
 
 # Чтение и обработка конфигурационного файла
@@ -129,12 +103,12 @@ def read_config(filename):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-      
+    
             # Разделяем ключ и значение
             if '=' in line:
                 key, value = line.split('=', 1)
                 config[key.strip()] = value.strip()
-          
+        
     return config
 
 # Считываем конфигурацию
@@ -398,7 +372,6 @@ s = 's = "C:\\Users\\igoroshust\\AppData\\Roaming\\Python\\Python314\\site-packa
 clean = s.replace('\\\\', '\\')  # C:\Users\igoroshust\AppData\Roaming\Python\Python314\site-packages
 ```
 
-
 # Создать имитацию простого банковского счёта
 
 ```Python
@@ -436,6 +409,38 @@ print(account.withdraw(withdraw_amount))  # баланс после снятия
 ```
 
 
+
+Другое решение
+
+```Python
+class BankAccount:
+    def __init__(self, balance):
+        self._balance = balance
+      
+    def get_balance(self):
+        return self._balance
+  
+    def deposit(self, amount):
+        if amount > 0:
+            self._balance += amount
+          
+    def withdraw(self, amount):
+        if 0 < amount <= self._balance:
+            self._balance -= amount
+          
+          
+op1 = BankAccount(100)
+
+op1.deposit(200)
+print(op1.get_balance())
+
+op1.withdraw(300)
+print(op1.get_balance())
+
+```
+
+
+
 # Классовый метод представления даты
 
 ```Python
@@ -462,7 +467,6 @@ print(date1.display())
 date2 = Date.from_string("25.12.2005")
 print(date2.display())
 ```
-
 
 # Сравнение векторов (переопределение стандартных методов)
 
@@ -492,8 +496,3 @@ print(v2)         # Строковое представление
 print(v1 + v2)    # Сложение векторов
 print(v1 == v2)   # Сравнение векторов
 ```
-
-
-
-
-
