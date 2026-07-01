@@ -1,3 +1,4 @@
+
 # JSON
 
 JSON (JavaScript Object Notation) – текстовый формат обмена данными. Он простой, человекочитаемый и поддерживается почти всеми языками.
@@ -61,14 +62,12 @@ JSON (JavaScript Object Notation) – текстовый формат обмен
 ]
 ```
 
-
 ### Частые ошибки
 
 1. Одинарные кавычки - нельзя
 2. Запятая после последнего элемента
 3. Ключи без кавычек
 4. Комментарии - в стандартном JSON их нет
-
 
 ## Примеры
 
@@ -108,7 +107,6 @@ json_text = json.dumps(payload, ensure_ascii=False)
 # Дальше передавать json_text в INSERT/UPDATE для jsonb-колонки
 ```
 
-
 3. Конфигурационный JSON (настройка тестов)
 
 config.json
@@ -138,8 +136,6 @@ with open("config.json", "r", encoding="utf-8") as f:
 host = cfg["db"]["host"]
 ```
 
-
-
 # JsonResponse (Django)
 
 JsonResponse - удобный класс джанго для возврата HTTP-ответа с JSON, наследуемый от HttpResponse и берущий на себя всю грязную работу `from django.http import JsonResponse`
@@ -165,7 +161,6 @@ def user_view(request):
 3. Кодировка и экранирование. Делает всё безопасно и в UTF-8, чтобы кириллица и спецсимволы не ломались.
 4. Обработка ошибок. Если данные нельзя превратить в JSON (например, есть datetime без конвертации), Django выбросит понятную ошибку.
 
-
 Для разрешения списка при передаче данных нужно использовать `safe=False`, так как JsonResponse(data) по умолчанию ожидает, что data - словарь.
 
 ```Python
@@ -182,7 +177,6 @@ return JsonResponse(users, safe=False)
 ```Python
 return JsonResponse({"error": "Not found"}, status=404)
 ```
-
 
 ### Работа со сложными типами
 
@@ -224,3 +218,26 @@ def view(request):
   data = {"name": "Мария"}
   return JsonResponse(data)
 ```
+
+
+# Стили обработки ситуаций
+
+LBYL - look before you leap (сначала посмотри, потом прыгай) - стиль обработки ситуаций, когда условия явно проверяются до операции, чтобы убедиться, что всё безопасно
+
+```Python
+def check_age(age):
+  age = int(age)  # Сразу нормализуем
+  return age + 1
+```
+
+EAFP (Easier to Ask Forgiveness than Permission) - проще попросить прощения, чем разрешения (делаем смело, ловим ошибку). Просто выполняем операцию, а если что-то пойдёт не так – обрабатываем исключение.
+
+```Python
+try:
+  value = data['key']
+except KeyError:
+  value = None
+```
+
+
+

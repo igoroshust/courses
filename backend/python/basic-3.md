@@ -1,0 +1,452 @@
+
+
+# Лямбда-функции
+
+Лямбда-функции - это безымянная функция из одного выражения: она принимает аргументы и возвращает результат этого выражения. Это крошечная функция прямо там, где она нужна, без имени и без `def`. Они компактнее обычных функций, но для сложных операций читаются хуже.
+
+`lambda аргументы: выражение`
+
+3 характеристики lambda:
+
+- Безымянная - её не объявляют через `def` с именем, а пишут по месту
+- Из одного выражения - тело это одна строка, результат которой возвращается
+- Это функция - принимает аргументы и возвращает значение
+
+#### Пример
+
+```Python
+square_lambda = lambda x: x * x
+power_lambda = lambda base, exponent: base ** exponent
+
+print(square_lambda(5))  # 25
+print(power_lambda(2, 3))  # 8
+```
+
+Лямбда подходят для простых функций (одно выражение), функция используется только один раз (или несколько раз в одном месте), функция передаётся как аргумент другой функции. Наиболее распространённые случаи использования - с функциями высшего порядка вроде `map()`, `filter()`, `sorted()` и д.р.
+
+
+## L с функциями высшего порядка
+
+**map()** - применение функции к каждому элементу итерируемого объекта
+
+```Python
+numbers = [1, 2, 3, 4, 5]
+
+doubled_numbers = list(map(lambda x: x * 2, numbers))
+
+print(doubled_numbers)
+
+celsius = [0, 10, 20, 30, 40]
+fahrenheit = list(map(lambda c: (c * 9/5) + 32, celsius))
+print(fahrenheit)
+```
+
+**filter()** - создаёт итератор из элементов, для которых функция возвращает True
+
+```Python
+```
+
+**sorted()** - возвращает отсортированный список, с помощью key можно указать функцию для извлечения значения для сравнения. Упорядочивание последовательностей.
+
+```Python
+# Сортировка чисел по абсолютному значению
+numbers = [5, -3, 2, -8, 1, 0, -2]
+
+sorted_numbers = sorted(numbers, key=lambda x: abs(x))
+print(sorted_numbers)
+
+# Сортировка словарей по значению определенного ключа
+students = [
+    {"name": "Alice", "grade": 85},
+    {"name": "Bob", "grade": 92},
+    {"name": "Charlie", "grade": 78},
+    {"name": "Diana", "grade": 95}
+]
+
+# Сортировка по оценке (по убыванию)
+sorted_by_grade = sorted(students, key=lambda student: student["grade"], reverse=True)
+for student in sorted_by_grade:
+    print(f"{student['name']}: {student['grade']}")
+```
+
+**functools.reduce() -** последовательное применение функции к элементам с накоплением результата. Агрегация, накопление
+
+```Python
+from functools import reduce
+
+# Сумма всех чисел в списке
+numbers = [1, 2, 3, 4, 5]
+total_lambda = reduce(lambda x, y: x + y, numbers)
+print(total_lambda)
+
+# Объединение строк
+words = ["Hello", "world", "of", "Python"]
+sentence = reduce(lambda x, y: x + " " + y, words)
+print(sentence)
+```
+
+
+### Лямбда как аргументы других функций
+
+```Python
+# Лямбда-операции
+def apply_operation(x, y, operation):
+    return operation(x, y)
+
+print(
+    f'''Addition: {apply_operation(5, 3, lambda x, y: x + y)}
+Subtraction: {apply_operation(10, 5, lambda x, y: x - y)}
+Division: {apply_operation(20, 5, lambda x, y: x / y)}
+Multiplication: {apply_operation(10, 20, lambda x, y: x * y)}'''
+)
+
+# Форматирование данных
+def data_formatter(data, formatter):
+    return [formatter(item) for item in data]
+
+names = ['alice', 'bob', 'phil']
+
+print(
+    data_formatter(names, lambda x: x.title())
+)
+```
+
+
+### Ограничения L
+
+1. Нет оператора присваивания `=`
+2. Отсутствие docstring
+3. Однострочное выражение
+4. Ограниченная читаемость
+
+```Python
+# Пример сложной логики, где лучше не использовать lambda
+complex_lambda = lambda x: (
+    x ** 2 if x > 0
+    else x + 1 if x < 0 
+    else 42
+)
+
+# Пример с обычной функцией
+def process_number(x):
+    """Обрабатывает число по правилам:
+    - Положительное -> квадрат
+    - Отрицательное -> x + 1
+    - Ноль -> 42 
+    """
+  
+    if x > 0:
+        return x ** 2
+    elif x < 0:
+        return x + 1
+    else:
+        return 42
+  
+print(process_number(0))
+```
+
+
+# Исключения
+
+Исключение - ошибка, возникшая во время выполнения программы. По умолчанию оно прерывает работу, но его можно перехватить и обработать.
+
+`try-except` - основной механизм обработки исключений в Python, позволяющий:
+
+- Изолировать потенциально опасный код
+- Перехватывать ошибки
+- Выполнять альтернативные действия
+- Продолжать выполнение программы
+
+```Python
+try:
+    # Рискованный код
+except ТипИсключения1:
+    # Обработка исключения типа 1
+except ТипИсключения2:
+    # Обработка исключения типа 2
+else:
+    # Выполняется, если в блоке try не возникло исключений
+finally:
+    # Выполняется всегда, независимо от наличия исключений
+```
+
+Обработка нескольких видов ошибок
+
+```Python
+try:
+    file_name = 'result.json'
+    file = open(file_name, 'r')
+    line = file.readline()
+    number = int(line.strip())
+    result = 100 / 0
+    print(result)
+  
+except FileNotFoundError:
+    print("not found")
+  
+except ValueError:
+    print("value error")
+  
+except ZeroDivisionError:
+    print("zero div")
+  
+except Exception as e:
+    print("Unknown error")
+```
+
+P проверяет блоки except в порядке их объявления и выполняет соответствующий код из первого подходящего блока
+
+**Обработка нескольких исключений одним блоком**
+
+```Python
+try:
+    value = int("abc")
+    result = 10 / 0
+except (ValueError, ZeroDivisionError):
+    print("Произошла ошибка в вычислениях")
+```
+
+
+else - выполнение кода при отсутствии исключений
+
+```Python
+try:
+    number = int("42")
+except (ValueError, ZeroDivisionError):
+    print("An error occurred in the calculations")
+else:
+    print(f'Успешно! Число: {number}')
+    print(f'Квадрат числа: {number ** 2}')
+```
+
+
+finally выполняется всегда, полезно для:
+
+- освобождения ресурсов (закрытие файлов, соединений с БД)
+- очистки временных данных
+- логирования завершения ошибки
+
+```Python
+try:
+  f = open("example.txt", "w")
+  f.write("Привет, мир!")
+  # Потенциальное исключение
+except IOError:
+  print('Произошла ошибка ввода-вывода')
+finally:
+  print('Закрытие файла')
+  f.close()  # Файл будет закрыт в любом случае
+```
+
+Информация о типе исключения
+
+`as` нужен для получения объекта исключения
+
+```Python
+try:
+    result = 10 / 0
+except ZeroDivisionError as e:
+    print(f"Type: {type(e).__name__}")
+    print(f"Message: {e}")
+```
+
+`raise` - вызов исключения
+
+```Python
+def check_age(age):
+    if age < 0:
+        raise ValueError("Возраст не может быть отрицательным")
+    if age < 18:
+        print("Вы несовершеннолетний")
+    else:
+        print("Вы совершеннолетний")
+
+try:
+    check_age(-5)
+except ValueError as e:
+    print(f"Ошибка: {e}")
+```
+
+
+Создание собственных исключений
+
+```Python
+class InvalidEmailError(Exception):
+    pass
+
+def validate_email(email):
+    if "@" not in email:
+        raise InvalidEmailError("Email должен содержать символ @")
+    print(f"Email {email} корректен")
+
+  
+try:
+    validate_email("user.example.com")
+except InvalidEmailError as e:
+    print(f'Valid error: {e}')
+```
+
+
+#### Практические рекомендации
+
+1. Указывать конкретный тип исключения
+
+```Python
+# Плохо
+try:
+    number = int("abc")
+except:  # Перехватывает все исключения
+    print("Ошибка")
+  
+  
+# Хорошо
+try:
+    number = int("abc")
+except ValueError:
+    print("Неверный формат числа")
+```
+
+2. Минимизировать код в блоке try
+
+```Python
+# Хорошо
+try:
+    file = open('data.txt', 'r')
+except FileNotFoundError:
+    print('File not found')
+    file = None
+  
+  
+if file:
+    try:
+        content = file.read()
+    except:
+        print("Ошибка при чтении файла")
+    finally:
+        file.close()
+```
+
+3. Правильное использование else и finally
+
+```Python
+def get_value_from_list(my_list, index):
+    try:
+        value = my_list[index]
+    except IndexError:
+        print(f'Index {index} out of range')
+        return None
+    else:
+        print('Success')
+        return value
+    finally:
+        print('Operation completed')
+      
+correct_result = get_value_from_list([1, 2, 3], 1)
+uncorrect_result = get_value_from_list([1, 2, 3], 10)
+```
+
+
+# Декораторы
+
+Декоратор - функция, принимающая другую функцию и возвращающая её "обёрнутую" версию (с добавленным поведением)
+
+```Python
+def my_decorator(func):
+  def wrapper():
+    print('Before the call')
+    func()
+    print('After the call')
+  return wrapper
+
+@my_decorator
+def say_hello():
+    print('Hi world')
+
+say_hello()
+```
+
+Запись `@my_decorator` над `say_hello` это сахар над эквивалентом: `say_hello = my_decorator(say_hello)`. Происходит переопределение `say_hello` на новую функцию (которую вернул декоратор). Никакой магии, обычное переприсваивание.
+
+### Декоратор с аргументами функции
+
+Если оборачиваемая функция принимает аргументы, обёртка должна их пробрасывать. Универсальный приём: `*args, **kwargs`.
+
+```Python
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print('Before the call')
+        result = func(*args, **kwargs)
+        print('After the call')
+      
+        return result
+    return wrapper
+
+
+@my_decorator
+def add(a, b):
+    return a + b
+
+print(add(5, 3))
+```
+
+
+`*args, **kwargs` означает "приму любые позиционные и именованные аргументы", `func(*args, **kwargs)` пробрасывает их дальше. Этим приёмом декоратор становится универсальным – работает с любой функцией.
+
+- args собирает все позиционные аргументы в кортеж
+- kwargs собирает все именованные аргументы в словарь
+
+```Python
+def f(*args, **kwargs):
+    print("args:", args)  # (1, 2, 3)
+    print("kwargs:", kwargs)  # {'x': 10, 'y': 20}
+  
+f(1, 2, 3, x=10, y=20)
+```
+
+
+### functools.wraps: сохранение имени и docstring
+
+У наивного декоратора есть незаметный побочный эффект: обёрнутая функция "теряет" своё имя и документацию, потому что снаружи виден уже wrapper, а не оригинал.
+
+```Python
+def timing(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+@timing
+def calculate_sum(n):
+    """Считает сумму чисел от 0 до n."""
+    return sum(range(n))
+
+print(calculate_sum.__name__)  # wrapper
+print(calculate_sum.__doc__)  # None
+```
+
+В реальном коде это ломает отладку, логирование и работу IDE. Лечится одной строкой – декоратором `@functools.wraps(func)` на `wrapper`.
+
+```Python
+from functools import wraps
+
+def timing(func):
+  @wraps(func)
+  def wrapper(*args, **kwargs):
+    return func(*args, **kwargs)
+  return wrapper
+
+@timing
+def calculate_sum(n):
+  """Calculate the sum of numbers from 0 to n"""
+  return sum(range(n))
+
+print(calculate_sum.__name__)  # calculate_sum
+print(calculate.sum.__doc__)  # Calculate ...
+```
+
+Правило: при написании собственного декоратора всегда оборачивайте внутреннюю функцию в `@wraps(func)`. Это сохраняет интроспекцию.
+
+Интроспекция - способность программы осматривать собственные объекты во время выполнения: узнавать их имя, документацию, модуль, место возникновения и т.п. 
+
+
+
+

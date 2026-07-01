@@ -1,3 +1,4 @@
+
 # Анализ данных о продажах
 
 Необходимо сохранить данные о продажах в CSV, а затем - проанализировать их и сохранить результаты в JSON
@@ -44,7 +45,7 @@ with open('sales.csv', 'r', encoding='utf-8') as file:
             sales_by_category[category] += revenue
         else:
             sales_by_category[category] = revenue
-      
+    
     # Вывод результатов анализа
     print(f'\nОбщая выручка: {total_revenue} rub.')
     print(f'\nВыручка по категориям:')
@@ -103,12 +104,12 @@ def read_config(filename):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-    
+  
             # Разделяем ключ и значение
             if '=' in line:
                 key, value = line.split('=', 1)
                 config[key.strip()] = value.strip()
-        
+      
     return config
 
 # Считываем конфигурацию
@@ -408,27 +409,25 @@ print(account.deposit(deposit_amount))# баланс после депозита
 print(account.withdraw(withdraw_amount))  # баланс после снятия
 ```
 
-
-
 Другое решение
 
 ```Python
 class BankAccount:
     def __init__(self, balance):
         self._balance = balance
-      
+    
     def get_balance(self):
         return self._balance
   
     def deposit(self, amount):
         if amount > 0:
             self._balance += amount
-          
+        
     def withdraw(self, amount):
         if 0 < amount <= self._balance:
             self._balance -= amount
-          
-          
+        
+        
 op1 = BankAccount(100)
 
 op1.deposit(200)
@@ -436,10 +435,7 @@ print(op1.get_balance())
 
 op1.withdraw(300)
 print(op1.get_balance())
-
 ```
-
-
 
 # Классовый метод представления даты
 
@@ -496,3 +492,74 @@ print(v2)         # Строковое представление
 print(v1 + v2)    # Сложение векторов
 print(v1 == v2)   # Сравнение векторов
 ```
+
+
+# Преобразование температуры из Цельсия в Фаренгейт
+
+```Python
+celsius = [0, 10, 20, 30, 40]
+fahrenheit = list(map(lambda c: (c * 9/5) + 32, celsius))
+print(fahrenheit)
+```
+
+# Фильтрация чётных чисел
+
+```Python
+numbers = [1, 2, 3, 4, 5]
+even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
+```
+
+
+# Фильтрация слов по количеству символов
+
+```Python
+words = ['asdasd', 'asd', 'as', 'a']
+long_words = list(filter(lambda word: len(word) > 3, words))
+```
+
+
+# Отбор по условию через генератор списка
+
+```Python
+comprehension = [x for x in [1, 2, 3, 4, 5] if x % 2 == 0]
+```
+
+
+# Форматтер даты
+
+```Python
+def format_data(data, formatter):
+    return [formatter(item) for item in data]
+
+names = ["alice", "bob", "charlie"]
+
+print(format_data(names, lambda x: x.title()))
+```
+
+
+# Тайминг выполнения вычислений (декоратор)
+
+```Python
+import time
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        elapsed = time.time() - start
+        print(f'{func.__name__}: {elapsed:.4f} c.')
+        return result
+    return wrapper
+
+@timer
+def calculate_sum(value):
+    return sum(range(value))
+
+calculate_sum(1_000_000)
+```
+
+
+
+
+
+
