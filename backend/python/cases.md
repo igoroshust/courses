@@ -1,4 +1,3 @@
-
 # Анализ данных о продажах
 
 Необходимо сохранить данные о продажах в CSV, а затем - проанализировать их и сохранить результаты в JSON
@@ -45,7 +44,7 @@ with open('sales.csv', 'r', encoding='utf-8') as file:
             sales_by_category[category] += revenue
         else:
             sales_by_category[category] = revenue
-    
+  
     # Вывод результатов анализа
     print(f'\nОбщая выручка: {total_revenue} rub.')
     print(f'\nВыручка по категориям:')
@@ -109,7 +108,7 @@ def read_config(filename):
             if '=' in line:
                 key, value = line.split('=', 1)
                 config[key.strip()] = value.strip()
-      
+    
     return config
 
 # Считываем конфигурацию
@@ -415,19 +414,19 @@ print(account.withdraw(withdraw_amount))  # баланс после снятия
 class BankAccount:
     def __init__(self, balance):
         self._balance = balance
-    
+  
     def get_balance(self):
         return self._balance
   
     def deposit(self, amount):
         if amount > 0:
             self._balance += amount
-        
+      
     def withdraw(self, amount):
         if 0 < amount <= self._balance:
             self._balance -= amount
-        
-        
+      
+      
 op1 = BankAccount(100)
 
 op1.deposit(200)
@@ -493,7 +492,6 @@ print(v1 + v2)    # Сложение векторов
 print(v1 == v2)   # Сравнение векторов
 ```
 
-
 # Преобразование температуры из Цельсия в Фаренгейт
 
 ```Python
@@ -509,7 +507,6 @@ numbers = [1, 2, 3, 4, 5]
 even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
 ```
 
-
 # Фильтрация слов по количеству символов
 
 ```Python
@@ -517,13 +514,11 @@ words = ['asdasd', 'asd', 'as', 'a']
 long_words = list(filter(lambda word: len(word) > 3, words))
 ```
 
-
 # Отбор по условию через генератор списка
 
 ```Python
 comprehension = [x for x in [1, 2, 3, 4, 5] if x % 2 == 0]
 ```
-
 
 # Форматтер даты
 
@@ -535,7 +530,6 @@ names = ["alice", "bob", "charlie"]
 
 print(format_data(names, lambda x: x.title()))
 ```
-
 
 # Тайминг выполнения вычислений (декоратор)
 
@@ -557,7 +551,6 @@ def calculate_sum(value):
 
 calculate_sum(1_000_000)
 ```
-
 
 # Вызвать функцию определённое количество раз
 
@@ -583,7 +576,6 @@ def say_hi(name):
 
 say_hi('igor')
 ```
-
 
 # Кэширование результатов функции
 
@@ -615,3 +607,37 @@ print(fib(30))
 ```
 
 
+# Преобразовать строку в объект и вывести в конкретном формате
+
+
+
+```Python
+from datetime import datetime
+
+date_str = '2026-05-05'
+
+# Преобразуйте строку date_str (формат YYYY-MM-DD) в дату
+# и выведите её в формате DD.MM.YYYY
+
+parsed = datetime.strptime(date_str, "%Y-%m-%d")
+formatted = parsed.strftime("%d.%m.%Y")
+
+print(formatted)
+```
+
+
+
+# Найти разницу в днях дат
+
+```Python
+from datetime import datetime
+
+first_date_str = input()
+second_date_str = input()
+
+d1 = datetime.strptime(first_date_str, '%Y-%m-%d').date()
+d2 = datetime.strptime(second_date_str, '%Y-%m-%d').date()
+
+diff_days = abs((d1 - d2).days)
+print(diff_days)
+```
