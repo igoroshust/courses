@@ -440,12 +440,119 @@ def calculate_sum(n):
   return sum(range(n))
 
 print(calculate_sum.__name__)  # calculate_sum
-print(calculate.sum.__doc__)  # Calculate ...
+print(calculate_sum.__doc__)  # Calculate ...
 ```
 
 Правило: при написании собственного декоратора всегда оборачивайте внутреннюю функцию в `@wraps(func)`. Это сохраняет интроспекцию.
 
 Интроспекция - способность программы осматривать собственные объекты во время выполнения: узнавать их имя, документацию, модуль, место возникновения и т.п. 
+
+
+### Декоратор с параметрами
+
+Для передачи настроек декоратору требуется создание дополнительного уровня, где внешняя функция принимает параметр и возвращает "настоящий" декоратор (например, повтор вызова N-раз)
+
+```Python
+from functools import wraps
+
+def repeat(n=1):
+    def my_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwrags):
+            result = None
+            for _ in range(n):
+                result = func(*args, **kwrags)
+            return result
+        return wrapper
+    return my_decorator
+
+@repeat(n=5)
+def say_hello(name, surname):
+    print('Hi', name, surname)
+  
+say_hello('igor', 'oshust')
+```
+
+Три уровня вложенности:
+
+- **repean(n)** принимает параметр декоратора и возвращает обычный декоратор
+- **decorator(func)** принимает функцию и возвращает обёртку
+- **wrapper(*args, **kwargs)** обрабатывает реальный вызов
+
+### Цепочка декораторов
+
+Декораторы можно применять несколько. Они применяются снизу вверх: ближайший к функции идёт первым:
+
+```Python
+def bold(func):
+    def wrapper(*args, **kwargs):
+        return f"<b>{func(*args, **kwargs)}</b>"
+    return wrapper
+
+def italic(func):
+    def wrapper(*args, **kwargs):
+        return f"<i>{func(*args, **kwargs)}</i>"
+    return wrapper
+
+@bold
+@italic
+def format_text(text):
+    return text
+
+print(format_text("Hi world"))
+```
+
+italic применяется к format_text первым, получается italic-функция. Потом bold оборачивает её снаружи, получается `bold(italic(format_text))`, поэтому сначала закрывается `</i>`, потом `</b>`
+
+
+### Дополнительно
+
+При инкапсуляции используются декораторы `@property` и `@balance.setter` - это декораторы стандартной библиотеки. `@property` берёт функцию-геттер и превращает её в вычисляемый атрибут.
+
+Декораторы в реальности используются в:
+
+1. Веб-фреймворки (Flask, FastAPI, Django). Привязка URL-функции к обработчику:
+
+```Python
+@app.route('/home')
+def home():
+  return "Main page"
+```
+
+2. Кеширование. Сохранение результатов, чтобы не пересчитывать одно и то же.
+
+```Python
+from functools import wraps
+
+# cache = {}
+
+
+def memoize(func):
+    cache = {}
+    @wraps(func)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+
+    return wrapper
+
+
+@memoize
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+
+print(fib(30))
+```
+
+Без memoize fib(30) пересчитывал бы одно и то же миллион раз и подвисал. С кэшем работает мгновенно. В стандартной библиотеке  есть декоратор `from functools import lru_cache`
+
+3. Тесты. В pytest `@pytest.fixture` и `@pytest.mark.parametrize` - это декораторы, которые превращают обычную функцию в фикстуру или параметризованный тест.
+
+
 
 
 

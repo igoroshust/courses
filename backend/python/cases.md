@@ -559,7 +559,59 @@ calculate_sum(1_000_000)
 ```
 
 
+# Вызвать функцию определённое количество раз
+
+```Python
+from functools import wraps
+
+def repeat(n=1):
+    def my_decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result = None
+            for _ in range(n):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return my_decorator
 
 
+@repeat(n=3)
+def say_hi(name):
+    print(f'Hello, {name}!')
+
+
+say_hi('igor')
+```
+
+
+# Кэширование результатов функции
+
+```Python
+from functools import wraps
+
+# cache = {}
+
+
+def memoize(func):
+    cache = {}
+    @wraps(func)
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+
+    return wrapper
+
+
+@memoize
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+
+print(fib(30))
+```
 
 

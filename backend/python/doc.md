@@ -1,4 +1,16 @@
 
+
+
+
+
+
+
+
+
+
+
+
+
 # JSON
 
 JSON (JavaScript Object Notation) – текстовый формат обмена данными. Он простой, человекочитаемый и поддерживается почти всеми языками.
@@ -172,7 +184,7 @@ users = [
 return JsonResponse(users, safe=False)
 ```
 
-Передача HTTP-статуса
+Передача HTTP-статуса_
 
 ```Python
 return JsonResponse({"error": "Not found"}, status=404)
@@ -216,9 +228,8 @@ from django.http import JsonResponse
 
 def view(request):
   data = {"name": "Мария"}
-  return JsonResponse(data)
+  return JsonResponse(data)_
 ```
-
 
 # Стили обработки ситуаций
 
