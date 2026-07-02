@@ -108,7 +108,7 @@ def read_config(filename):
             if '=' in line:
                 key, value = line.split('=', 1)
                 config[key.strip()] = value.strip()
-    
+  
     return config
 
 # Считываем конфигурацию
@@ -421,12 +421,12 @@ class BankAccount:
     def deposit(self, amount):
         if amount > 0:
             self._balance += amount
-      
+    
     def withdraw(self, amount):
         if 0 < amount <= self._balance:
             self._balance -= amount
-      
-      
+    
+    
 op1 = BankAccount(100)
 
 op1.deposit(200)
@@ -606,10 +606,7 @@ def fib(n):
 print(fib(30))
 ```
 
-
 # Преобразовать строку в объект и вывести в конкретном формате
-
-
 
 ```Python
 from datetime import datetime
@@ -625,8 +622,6 @@ formatted = parsed.strftime("%d.%m.%Y")
 print(formatted)
 ```
 
-
-
 # Найти разницу в днях дат
 
 ```Python
@@ -640,4 +635,22 @@ d2 = datetime.strptime(second_date_str, '%Y-%m-%d').date()
 
 diff_days = abs((d1 - d2).days)
 print(diff_days)
+```
+
+# Содать таблицу (sqlite)
+
+```SQL
+import sqlite3
+
+with sqlite3.connect('tasks.db') as connection:
+    cursor = connection.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS task (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            completed BOOLEAN DEFAULT FALSE
+        )
+    ''')
+  
+print('The task table has been created')
 ```
