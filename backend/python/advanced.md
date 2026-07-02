@@ -1,4 +1,3 @@
-
 # Базы данных
 
 БД - организованная коллекция данных, которая хранится и управляется специальной системой (СУБД). БД - система, мгновенно находящая нужную информацию среди миллионов записей. Почти любое приложение, которое хранит что-то надолго - пользователей, заказы, сообщения, - держит это в БД, а не в памяти программы. БД - как умный склад, где каждая полка имеет свой адрес, а складской робот (СУБД) может быстро найти и доставить любую нужную информацию.
@@ -150,7 +149,7 @@ with sqlite3.connect('tasks.db') as connection:
     query = '''
         SELECT * FROM task;
         '''
-    
+  
     cursor.execute(query)
 
   	# Получаем колонки таблицы
@@ -259,7 +258,6 @@ cursor.execute(
 )
 ```
 
-
 ### READ: чтение данных
 
 ```Python
@@ -309,7 +307,6 @@ print(f'Task №{task_number} is marked as completed')
 
 `WHERE id = ?` обязательно: без условия `UPDATE` обновит все строки в таблице
 
-
 ### DELETE: удаление данных
 
 ```Python
@@ -323,3 +320,388 @@ print("Task №2 has been removed")
 ```
 
 Без WHERE DELETE удалит всю таблицу строк.
+
+# SQLAlchemy Core: SQL из Python-выражений
+
+**SQLAlchemy Core** - это низкоуровневая часть библиотеки SQLAlchemy, которая даёт работать с БД через Python-конструкции вместо написания сырых SQL-строк.
+
+SQLAlchemy Core решает две проблемы (потенциальные ошибки/sql-инъекции и различный диалект для каждой СУБД). SQL строится из Python-выражений, безопасность гарантируется по умолчанию, один и тот же код работает с PostgreSQL, MySQL, SQLite. Простоые select/where похожи в СУБД, но специфические функции (даты, строки, агрегаты), схема, синтаксис - расходятся, и Core переводит P в правильный диалект:
+
+![1782978503675](image/advanced/1782978503675.png)
+
+```
+pip install sqlalchemy
+```
+
+Для SQLite дополнительных драйверов не нужно. Для PostgreSQL ставится `psycopg2-binary`, для MySQL - `pymysql`.
+
+### Engine: подключение
+
+Engine - объект, отвечающий за связь с БД. Создаётся один раз на приложение:
+
+```Python
+from sqlalchemy import create_engine
+
+engine = create_engine('sqlite:////tasks.db', echo=True)
+
+print('The Engine is ready')
+```
+
+echo=True включает вывод выполняемых SQL-запросов в консоль. Удобно в обучении и при отладке, в production его выключают. Строка подключения для других СУБД:
+
+- `postgresql://user:pass@host:5432/dbname`
+- `mysql+pymysql://user:pass@host/dbname`
+- `sqlite:///file.db`
+
+### Описание таблицы
+
+В Core структура таблицы описывается объектом Table - Python-эквивалент SQL-команды `CREATE TABLE`.
+
+```Python
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Boolean
+
+engine = create_engine('sqlite:///alchemy.db')
+
+metadata = MetaData()  # Коллекция всех Table-объектов приложения
+
+print(metadata)
+
+tasks_table = Table(
+    'tasks',
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('title', String, nullable=False),
+    Column('completed', Boolean, default=False),
+)
+
+# Создаём таблицу в БД
+metadata.create_all(engine)  # создаём все таблицы из коллекции, которых ещё нет в БД
+
+print("Alchemy table created")
+```
+
+MetaData - коллекция всех Table-объектов приложения. `metadata.create_all(engine)` создаёт сразу все таблицы из коллекции, которых ещё нет в БД.
+
+#### CRUD
+
+Для каждой операции в Core есть готовый помощник: insert(), select(), update(), delete().
+
+**INSERT**
+
+```Python
+from sqlalchemy import insert, create_engine, MetaData, Table, Column, Integer, String, Boolean
+
+engine = create_engine('sqlite:///alchemy.db')
+metadata = MetaData()  # Коллекция всех Table-объектов приложения
+
+tasks_table = Table(
+    'tasks',
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('title', String, nullable=False),
+    Column('completed', Boolean, default=False),
+)
+
+# Создаём таблицу в БД
+# metadata.create_all(engine)  # создаём все таблицы из коллекции, которых ещё нет в БД
+
+with engine.connect() as connection:
+    result = connection.execute(
+        insert(tasks_table),
+        [
+            {'title': "Lean SQLAlchemy Core", 'completed': False},
+            {'title': "Write an application", 'completed': False},
+            {'title': "Test the code", 'completed': False},
+        ],
+    )
+    connection.commit()
+  
+print(f'{result.rowcount} lines added')
+```
+
+Значения передаются списком словарей – это batch-вставка одним запросом, SQLAlchemy сам подставляет данные безопасно.
+
+**SELECT**
+
+```Python
+from sqlalchemy import select
+
+# # SELECT
+with engine.connect() as connection:
+    result = connection.execute(
+        select(tasks_table)
+    )
+  
+    for row in result:
+        print(row.id, row.title, row.completed)
+
+
+# 1 Lean SQLAlchemy Core False
+# 2 Write an application False
+# 3 Test the code False
+```
+
+**SELECT с условием**
+
+```Python
+with engine.connect() as connection:
+    result = connection.execute(
+        select(tasks_table).where(tasks_table.c.id == 1)
+    )
+  
+    row = result.first()
+    print(row.title)
+  
+# Lean SQLAlchemy Core
+```
+
+tasks_table.c.id это колонка id таблицы tasks. Сравнения (==, >, <, .in_(), .like()) превращаются в SQL автоматически.
+
+**UPDATE**
+
+```Python
+from sqlalchemy import update
+
+with engine.connect() as connection:
+    result = connection.execute(
+        update(tasks_table).where(tasks_table.c.id == 1).values(completed = True)
+    )
+    connection.commit()
+  
+print(f'{result.rowcount} strings updated')
+```
+
+**DELETE**
+
+```Python
+from sqlalchemy import delete
+
+with engine.connect() as connection:
+    result = connection.execute(
+        delete(tasks_table).where(tasks_table.c.id == 3)
+    )
+    connection.commit()
+  
+print(f'{result.rowcount} lines were removed')
+```
+
+- rowcount - атрибут объекта результата запроса, показывающий количество строк, затронутых операцией (INSERT, UPDATE, DELETE).
+
+**Итог** - Core необходим для точного контоля над запросами, SQLAlchemy ORM - слой выше Core, где таблицы становятся Python-классами, строки - объектами, и нет необходимости думать в терминах SQL (SQLAlchemy ORM хорошо подходит для типичной бизнес логики).
+
+# SQLAlchemy ORM
+
+ORM (Object-Relational Mapping) описывает таблицу как Python-класс, строка таблицы - это экземпляр этого класса, а изменение атрибута объекта автоматически отображается в БД. Получается работа с БД на языке обычных Python-объектов.
+
+![1782983068437](image/advanced/1782983068437.png)
+
+## Модель: класс как таблица
+
+В SQLAlchemy 2.0+ модели описываются через `DeclarativeBase` с аннотациями типов, заменяя старый `declarative_base().`
+
+```Python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+class Base(DeclarativeBase):
+    pass
+
+class Task(Base):
+    __tablename__ = 'task'  # table name in the db
+  
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    completed: Mapped[bool] = mapped_column(default=False)
+  
+    def __repr__(self):
+        return f"Task(id={self.id}, title={self.title!r}, completed={self.completed})"
+  
+engine = create_engine('sqlite:///orm_tasks.db')
+Base.metadata.create_all(engine)
+
+print(f'The Task model and tasks table are ready.')
+```
+
+- `class Task(Base)` - модель, наследник базового класса.
+- `__tablename__ = 'tasks'` - имя таблицы в БД
+- `id: Mapped[int] = mapped_column(primary_key=True)` - колонка id, тип int, первичный ключ
+- `title: Mapped[str]` - колонка title, тип str, NOT NULL по умолчанию
+- `completed: Mapped[bool] = mapped_column(default=False)` - колонка completed, тип bool, по умолчанию False.
+
+Типы Python (int, str, bool) автоматически отображаются в SQL-типы (INTEGER, VARCHAR, BOOLEAN)
+
+## Session: единица работы
+
+Для запросов в ORM используется `Session`. Это "единица работы": она держит загруженные объекты в памяти, отслеживает изменения и одной командой сохраняет всё в БД.
+
+```Python
+from sqlalchemy.orm import Session
+
+with Session(engine) as session:
+  # ... works with objects here ...
+  session.commit()
+
+print('The session is closed')
+```
+
+- with Session(...) автоматически закрывает сессию по выходу
+- commit() сохраняет накопленные изменения в бд
+
+### CRUD через объекты
+
+```Python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column
+
+class Base(DeclarativeBase):
+    pass
+
+class Task(Base):
+    __tablename__ = 'task'
+  
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    completed: Mapped[bool] = mapped_column(default=False)
+  
+    def __repr__(self):
+        return f"Task(id={self.id}, title={self.title!r}, completed={self.completed})"
+  
+engine = create_engine('sqlite:///orm_tasks.db')
+Base.metadata.create_all(engine)
+
+
+with Session(engine) as session:
+    task1 = Task(title="Learn ORM")
+    task2 = Task(title="Write the code")
+  
+    session.add_all([task1, task2])
+    session.commit()
+  
+    print(
+        task1,
+        task2
+    )
+```
+
+task1.id после commit() уже заполнен. БД назначает его автоматически.
+
+#### READ
+
+```Python
+with Session(engine) as session:
+    # Все строки
+    tasks = session.execute(
+        select(Task)).scalars().all()
+  
+    for task in tasks:
+        print(task)
+  
+# Task(id=1, title='Learn ORM', completed=False)
+# Task(id=2, title='Write the code', completed=False)
+```
+
+scalars() нужен потому, что select(Task) возвращает строки-кортежи (даже если в каждом кортеже один элемент). .scalars распаковывает их в объекты Task.
+
+**Получить запись по pk**
+
+```Python
+from sqlalchemy import Session
+
+with Session(engine) as session:
+  task = session.get(Task, 1)
+  print(task)
+```
+
+с фильтром
+
+```Python
+with Session(engine) as session:
+    stmt = select(Task).where(Task.completed == False)
+    pending = session.execute(stmt).scalars().all()
+    for task in pending:
+        print(task)
+```
+
+### UPDATE
+
+```Python
+with Session(engine) as session:
+  task = session.get(Task, 1)
+  task.completed = True
+  session.commit()
+  print(task)
+```
+
+Не нужно явно указывать update, set, where. Session отслеживает изменённые атрибуты и при commit() отправляет нужный SQL.
+
+### DELETE
+
+```Python
+with Session(engine) as session:
+  task = session.get(Task, 2)
+  session.delete(task)
+  session.commit()
+  print('The task has been deleted')
+```
+
+## Связи между таблицами
+
+ORM описывает связи через `relationship`, обращение к связанным записям выглядит как обращение к обычному атрибуту:
+
+```Python
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy import create_engine
+
+from typing import List
+
+class Base(DeclarativeBase):
+    pass
+
+class User(Base):
+    __tablename__ = 'users'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    tasks: Mapped[List["UserTask"]] = relationship(back_populates="user")
+  
+class UserTask(Base):
+    __tablename__ = 'user_tasks'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] 
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["User"] = relationship(back_populates="tasks")
+  
+  
+engine = create_engine('sqlite:///orm_users.db')
+Base.metadata.create_all(engine)
+
+with Session(engine) as session:
+    anna = User(name="Ann", tasks=[
+        UserTask(title="Learn Python"),
+        UserTask(title="Write the code"),
+    ])
+    session.add(anna)
+    session.commit()
+  
+    user = session.get(User, anna.id)
+    print(user.name)
+    for task in user.tasks:
+        print(f'  {task.title}')
+```
+
+user.tasks за кадром выполняет SQL-запрос `SELECT ... FROM user_tasks WHERE user_id = ?`, но в коде это выглядит как обычный доступ к атрибуту. Это и есть главный комфорт ORM: реляционная связь читается как "у пользователя есть задачи"
+
+### Сравнение подходов
+
+**Запрос, Защита от инъекций, Переносимость между БД, Связи, Update, Контроль над SQL**
+
+sqlite3: sql-строка, через `?` вручную, нет, JOIN вручную, `UPDATE ... SET ...`, максимальный
+
+core: p-выражение, автоматически, есть, JOIN-выражения, `update().values()`, высокий
+
+orm: p-объект, автоматически, есть, user.tasks, `obj.field = ...`, средний
+
+
+**Правило**: ORM для типичной бизнес-логики, Core для сложных запросов где нужен контроль, raw SQL только когда первые два не справляются.
+
+ORM - это инструмент, который оптимизирует типичные случае работы с БД. Если в проекте 95% запросов это "получи объект, поменяй поле, сохрани", ORM экономит кучу времени. Когда упираемся в сложный запрос или performance-критичный путь - опускаемся до Core или пишем SQL напрямую. Эти три уровня дополняют друг друга.
