@@ -225,7 +225,6 @@ def db_connection():
 
 На практике 95% времени используется function (по умолчанию, один экземпляр на тест) и session (один на весь прогон). Есть ещё class и module - для особых случаев.
 
-
 #### conftest.py: общие фикстуры
 
 Если фикстура нужна в нескольких файлах, её необходимо разместить в `conftest.py` рядом с тестами. Импортировать её не нужно - pytest находит её автоматически. Это стандартный способ делиться фикстурами между тестами одного проекта.
@@ -246,7 +245,6 @@ test_api.py
 def test_api_url(app_config):
   assert "example.com" in app_config["api_url"]
 ```
-
 
 ### Параметризация: один тест, много входов
 
@@ -286,7 +284,7 @@ def test_get_discount(age, is_member, expected):
   assert get_discount(age, is_member) == expected
 ```
 
-Первый аргумент parametrize - строка с именами параметров через запятую, а не кортеж (это специфическое соглашение pytest). Дальше идёт список кортежей - каждый кортеж это один прогон теста. pytest запускает тест 5 раз, каждый со своим набором значений. В выводе они идут отдельными тестами. 
+Первый аргумент parametrize - строка с именами параметров через запятую, а не кортеж (это специфическое соглашение pytest). Дальше идёт список кортежей - каждый кортеж это один прогон теста. pytest запускает тест 5 раз, каждый со своим набором значений. В выводе они идут отдельными тестами.
 
 ```Python
 test_discount.py::test_get_discount[70-False-0.15] PASSED
@@ -295,3 +293,122 @@ test_discount.py::test_get_discount[30-True-0.1]   PASSED
 ```
 
 Если один из случаев упал, в имени теста видны его параметры - сразу понятно, какая комбинация сломалась.
+
+
+## Моки, заглушки
+
+Реальный код часто общается с внешним миром: HTTP-запросы, БД, файлы, время. В тестах это плохо: сеть может упасть, БД может быть медленной, время неуправляемо. Тест должен проверять логику программы, а не работоспособность других сервисов. Решение - тестовый двойник: подсовываем коду фейковый объект, который ведёт себя как нужно. У этого двойника есть две роли:
+
+- Stub (заглушка) - возвращает заранее заданные ответы, проверять ничего не нужно.
+- Mock - тоже самое плюс умеет фиксировать вызовы (с какими аргументами и сколько раз), чтобы тест мог это проверить.
+
+На практике в Python оба делаются одним инструментом:` unittest.mock`
+
+**Создаём Mock и настраиваем на возврат его методов**
+
+```Python
+from unittest.mock import Mock 
+
+def process_payment(service, amount):
+  if service.charge(amount):
+    service.log(f"charged {amount}")
+    return "OK"
+  return "FAIL"
+
+
+def test_payment_success():
+  service = Mock()
+  service.charge.return_value = True
+
+  result = process_payment(service, 100)
+
+  assert result == "OK"
+  service.charge.assert_called_once_with(100)
+  service.log.assert_called_once_with("charged 100")
+```
+
+- `Mock()` создаёт объект, у которого любой атрибут или метод существует автоматически.
+- `service.charge.return_value = True` - когда тест вызывает `service.charge(...)`, возвращается True.
+- `assert_called_once_with(100)` проверяет: "метод charge был вызван ровно один раз с аргументом 100". Это и есть отличие Mock от Stub: тест не просто получает данные, он проверяет как код взаимодействовал с зависимостью.
+
+### patch: подмена существующего объекта
+
+`Mock()` хорош, если зависимость передаётся в функцию аргументом. Но часто код использует импортированный объект напрямую (например, `requests.get`). Тогда нужен `patch` - он временно подменяет что-то в коде на мок:
+
+```Python
+from unittest.mock import patch, Mock
+
+# Testing code
+import requests
+
+def get_user(user_id):
+    response = requests.get(f"https://api.example.com/users/{user_id}")
+    if response.status_code == 200:
+        return response.json()
+    return None
+
+
+# Test
+@patch("requests.get")
+def test_get_user(mock_get):
+    """We Configure what the requests.get will return"""
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"id": 1, "name": "Ann"}
+    mock_get.return_value = mock_response
+  
+    user = get_user(1)
+  
+    assert user == {"id": 1, "name": "Ann"}
+    mock_get.assert_called_once_with("https://api.example.com/users/1")
+```
+
+
+- `@patch("requests.get")` подменяет `requests.get` на мок только на время теста, после теста всё возвращается обратно.
+- `mock_get` - автоматически созданный мок, который заменяет оригинал. Через него настраивается поведение и проверяются вызовы.
+- `response.json()` - это метод, поэтому настраиваем `mock_response.json.return_value` - у вложенного мока `json` свой собственный `return_value`. Любой атрибут или метод мока тоже мок, по цепочке.
+
+`patch` можно использовать в качестве контекстного менеджера (`with patch(...) as mock_get`) - пригодится, когда подмена нужна только для части теста.
+
+
+#### Главная грабля: куда указывать путь в patch
+
+Самая частая ошибка с patch - это выбор пути. Правило: патчить там, где объект используется, а не там, где он определён. 
+
+```Python
+# app.py
+import requests
+
+def get_user(user_id):
+  return requests.get(f'...')
+
+@patch("requests.get")  # OK
+def test_get_user(mock_get):
+  pass
+```
+
+Если в коде использован `from requests import get`
+
+```Python
+@patch("app.get")  # Let's patch where get is called.
+def test_get_user(mock_get)
+```
+
+
+#### side_effect: имитация ошибок
+
+Иногда нужно проверить, что код корректно реагирует на сбой зависимости (например, ConnectionError). Для этого у мока есть `side_effect`.
+
+```Python
+from unittest.mock import Mock
+
+mock_api = Mock()
+mock_api.connect.side_effect = ConnectionError("network down")
+
+# Now the mock_api.connect() will throw a ConnectionError
+```
+
+
+**Главное правило**
+
+Моки удобны, но коварны: легко начать мокать внутренности собственного кода, и тогда тесты проверяют не поведение, а реализацию. Любой рефакторинг ломает их, хотя код работает.  Правило: нужно мокать границы системы - внешние API, БД, файловую систему, время. Свой код нужно тестировать напрямую, без моков.
