@@ -1,3 +1,5 @@
+![1783092639860](image/cases/1783092639860.png)
+
 
 ![1782570590335](image/cases/1782570590335.png)
 
@@ -70,7 +72,6 @@ AND p.date < '2006-01-01'
 GROUP BY fm.member_name, fm.status;
 ```
 
-
 # Найдите самый дорогой деликатес (delicacies) и выведите его цену
 
 ```SQL
@@ -89,4 +90,47 @@ order by unit_price DESC LIMIT 1;
 select fm.member_name, SUM(p.unit_price * p.amount) as costs from FamilyMembers fm join Payments p on p.family_member = fm.member_id
     where date BETWEEN '2005-06-01T00:00:00.000Z' AND '2005-06-30T00:00:00.000Z'
 GROUP BY fm.member_name;
+```
+
+# Возраст самого молодого обучающегося
+
+Сколько лет самому молодому обучающемуся ?
+
+```SQL
+select EXTRACT(YEAR FROM AGE(CURRENT_TIMESTAMP, birthday)) as year from Student
+ORDER BY birthday DESC limit 1;
+```
+
+# Предметы Ромашкина П.П.
+
+Выведите название предметов, которые преподает Ромашкин П.П. (Romashkin P.P.). Обратите внимание, что в базе данных есть несколько учителей с такой фамилией.
+
+```SQL
+select s.name as subjects from Subject s join Schedule sch on sch.subject = s.id
+    join Teacher t on t.id = sch.teacher
+    where t.last_name = 'Romashkin' AND t.first_name LIKE 'P%' AND t.middle_name LIKE 'P%'
+```
+
+# Начало четвёртого занятия
+
+Выясните, во сколько по расписанию начинается четвёртое занятие.
+
+```SQL
+select start_pair from Timepair 
+limit 1 offset 3
+```
+
+
+# Время, проведённое в школе
+
+Сколько времени обучающийся будет находиться в школе, учась со 2-го по 4-ый уч. предмет?
+
+Результат должен быть в формате HH:MM:SS
+
+```SQL
+SELECT (
+  (SELECT end_pair FROM Timepair WHERE id = 4) -
+  (SELECT start_pair FROM Timepair WHERE id = 2)) AS time
+ FROM Timepair t
+JOIN Schedule sch ON sch.number_pair = t.id limit 1;
 ```
