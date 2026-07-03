@@ -1,3 +1,4 @@
+
 # Анализ данных о продажах
 
 Необходимо сохранить данные о продажах в CSV, а затем - проанализировать их и сохранить результаты в JSON
@@ -421,12 +422,12 @@ class BankAccount:
     def deposit(self, amount):
         if amount > 0:
             self._balance += amount
-    
+  
     def withdraw(self, amount):
         if 0 < amount <= self._balance:
             self._balance -= amount
-    
-    
+  
+  
 op1 = BankAccount(100)
 
 op1.deposit(200)
@@ -653,4 +654,36 @@ with sqlite3.connect('tasks.db') as connection:
     ''')
   
 print('The task table has been created')
+```
+
+
+
+# Создание теста
+
+1. Создаём тест проверки email в `main.py`
+
+```Python
+def change_email(user, email):
+    user['email'] = email
+    return user
+```
+
+2. Формируем тест в файле `test_example.py` по принципу "Arrange / Act / Assertsf#№"
+
+```python
+from main import change_email
+
+
+def test_user_email():
+    # Arrange
+    user = {
+        "name": "Ann",
+        "email": "old@xx.xx",
+    }
+  
+    # Act
+    change_email(user, "new@xx.xx")
+  
+    # Assert
+    assert user['email'] == "new@xx.xx"
 ```
