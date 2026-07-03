@@ -294,7 +294,6 @@ test_discount.py::test_get_discount[30-True-0.1]   PASSED
 
 Если один из случаев упал, в имени теста видны его параметры - сразу понятно, какая комбинация сломалась.
 
-
 ## Моки, заглушки
 
 Реальный код часто общается с внешним миром: HTTP-запросы, БД, файлы, время. В тестах это плохо: сеть может упасть, БД может быть медленной, время неуправляемо. Тест должен проверять логику программы, а не работоспособность других сервисов. Решение - тестовый двойник: подсовываем коду фейковый объект, который ведёт себя как нужно. У этого двойника есть две роли:
@@ -363,17 +362,15 @@ def test_get_user(mock_get):
     mock_get.assert_called_once_with("https://api.example.com/users/1")
 ```
 
-
 - `@patch("requests.get")` подменяет `requests.get` на мок только на время теста, после теста всё возвращается обратно.
 - `mock_get` - автоматически созданный мок, который заменяет оригинал. Через него настраивается поведение и проверяются вызовы.
 - `response.json()` - это метод, поэтому настраиваем `mock_response.json.return_value` - у вложенного мока `json` свой собственный `return_value`. Любой атрибут или метод мока тоже мок, по цепочке.
 
 `patch` можно использовать в качестве контекстного менеджера (`with patch(...) as mock_get`) - пригодится, когда подмена нужна только для части теста.
 
-
 #### Главная грабля: куда указывать путь в patch
 
-Самая частая ошибка с patch - это выбор пути. Правило: патчить там, где объект используется, а не там, где он определён. 
+Самая частая ошибка с patch - это выбор пути. Правило: патчить там, где объект используется, а не там, где он определён.
 
 ```Python
 # app.py
@@ -394,7 +391,6 @@ def test_get_user(mock_get):
 def test_get_user(mock_get)
 ```
 
-
 #### side_effect: имитация ошибок
 
 Иногда нужно проверить, что код корректно реагирует на сбой зависимости (например, ConnectionError). Для этого у мока есть `side_effect`.
@@ -408,7 +404,225 @@ mock_api.connect.side_effect = ConnectionError("network down")
 # Now the mock_api.connect() will throw a ConnectionError
 ```
 
-
 **Главное правило**
 
 Моки удобны, но коварны: легко начать мокать внутренности собственного кода, и тогда тесты проверяют не поведение, а реализацию. Любой рефакторинг ломает их, хотя код работает.  Правило: нужно мокать границы системы - внешние API, БД, файловую систему, время. Свой код нужно тестировать напрямую, без моков.
+
+
+## unittest
+
+unittest - фреймворк стандартной библиотеки P в стиле классического ООП: тесты живут в классах, наследуются от TestCase, проверки делаются через специальные методы `assert*`
+
+Базовая структура
+
+```Python
+import unittest
+
+def add(a, b):
+    return a + b
+
+class TestAddFunction(unittest.TestCase):
+    def test_add_positive(self):
+        self.assertEqual(add(3, 5), 8)
+      
+    def test_add_negative(self):
+        self.assertEqual(add(-1, -1), -2)
+      
+  
+if __name__ == "__main__":
+    unittest.main()
+
+# ..
+# ----------------------------------------------------------------------
+# Ran 2 tests in 0.000s
+
+# OK
+```
+
+Отличия от pytest:
+
+- Тесты живут в классе, который наследуется от `unittest.TestCase`
+- Имена методов начинаются с `test_`, как и в pytest
+- Вместо обычного `assert` используются специальные методы: `self.assertEqual(a, b)` вместо `assert a == b`.
+- unittest.main() в конце файла – точка запуска при `python test_file.py`
+
+Запуск через стандартный `python` или через `python -m unittest test_addition.py`
+
+
+#### Главные assert-методы
+
+- assertEqual(a, b)  `a == b`
+- assertNotEqual(a, b) `a != b`
+- assertTrue(x)  `bool(x) is True`
+- assertFalse(x  `bool(x) is False`
+- assertIn(item, container) `item in container`
+- assertRaises(Exception) `блок выбрасывает исключение`
+
+
+#### Пример assertRaises через контекстный менеджер
+
+```Python
+import unittest
+
+def divide(a, b):
+    if b == 0:
+        raise ZeroDivisionError("Cannot divide by zero")
+    return a / b
+
+
+class TestDivide(unittest.TestCase):
+    def test_divide_by_zero(self):
+        with self.assertRaises(ZeroDivisionError):
+            divide(10, 0)
+
+    def test_normal(self):
+        self.assertEqual(divide(10, 2), 5)
+        self.assertEqual(divide(9, 3), 3)
+
+
+if __name__ == "__main__":
+    unittest.main()   # Это запускает все тесты
+```
+
+
+
+В unittest нет фикстур – есть `setUp()` (запускается перед каждым тестом) и `tearDown()` - запускается после каждого, даже если тест упал.
+
+```Python
+import unittest
+
+
+class TestUserStorage(unittest.TestCase):
+    def setUp(self):
+      """Creating a dict with users"""
+        self.users = {'id': 1, 'name': 'Ann'}
+
+    def tearDown(self):
+      """Clearing the dictionary with users"""
+        self.users = None
+
+    def test_has_name(self):
+        self.assertIn("name", self.users)
+
+    def test_user_id(self):
+        self.assertEqual(self.users['id'], 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+Для test_has_name и test_user_id setUp и tearDown будут вызваны персонально. Это гарантирует независимость тестов друг от друга, существуют также `setUpClass`/`tearDownClass` для подготовки один раз на класс, но уже частные случаи.
+
+![1783074904101](image/advanced-2/1783074904101.png)
+
+
+### Моки в unittest
+
+`unittest.mock` имеют тот же @patch, мок в unittest работают аналогично pytest. Тестовый метод просто получает `mock_*` параметром после `self`.
+
+```Python
+import unittest
+from unittest.mock import patch
+
+class TestUserAPI(unittest.TestCase):
+  @patch("requests.get")
+  def test_get_user(self, mock_get):
+    mock_get.return_value.json.return_value = {"id": 1}
+    # ... тестируем код, использующий requests.get
+```
+
+#### unittest vs pytest
+
+Тесты, Проверки, Подготовка, Параметризация, Зависимости
+
+unittest: методы класса TestCase, self.assertEqual, setUp/tearDown, вручную или через расширения, встроены
+
+pytest: обычные функции, стандартный assert, фикстуры с DI и scope, @pytest.mark.parametrize, pip install pytest
+
+**Итог** - pytest лаконичнее, гибче и в новых проектах используется по умолчанию. Но unittest встроен и не требует ничего ставить - для скриптов и стандартной библиотеки это плюс.
+
+
+
+## Покрытие кода и CI
+
+Незапущенные тесты из репозитория ничего не гарантируют. Для работы тестам нужны две вещи:
+
+1. Покрытие: знать, какие части кода тесты действительно прогоняют, а какие нет.
+2. CI (Continuous Integration): чтобы тесты автоматически запускались на каждый push, а не "когда-нибудь" вручную.
+
+Покрытие - процент исходного кода, который выполнился во время прогона тестов. Высокое покрытие не гарантирует отсутствия ошибок (можно покрыть строку, но проверить её плохо), но низкоуровневое покрытие однозначно показывает "здесь не тестировано". Для pytest инструмент это плагин `pytest-cov`: `pip install pytest pytest-cov`, 
+
+`pytest --cov=app tests/`.
+
+Сводка
+
+```Python
+
+---------- coverage: platform ... -- Python ... -----------
+Name              Stmts   Miss  Cover
+-------------------------------------
+app/users.py        25      5    80%
+app/orders.py       18      0   100%
+-------------------------------------
+TOTAL               43      5    88%
+```
+
+- Stmts - количество строк кода в файле
+- Miss - сколько не выполнилось во время теста
+- Cover - процент покрытия
+
+Команда для детального отчёта
+
+```Python
+pytest --cov=app --cov-report=html
+```
+
+
+Гнаться за 100% покрытия не стоит. Реалистичная цель: 80-90% для бизнес-логики. Непокрытые участки важнее анализировать вручную: это критичный код или просто getter/setter? Покрытие - это сигнал о пробелах, а не цель сама по себе.
+
+### CI
+
+CI - автоматический запуск тестов (и любых других проверок) при изменениях в репозитории. GitHub Actions, GitLab CI, CircleCI, Jenkins. Принцип у всех один: на каждый git push запускается заданный pipeline.
+
+![1783078352275](image/advanced-2/1783078352275.png)
+
+
+**Пример CI на GitHubActions** - `.github/workflows/tests.yml`:
+
+```Python
+name: tests
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: '3.12'
+            - run: pip install -r requirements.txt
+            - run: pytest --cov=app
+```
+
+**Что он делает:**
+
+- Запускается на push и pull_request в ветку main
+- Клонирует репозиторий и ставит Python 3.12
+- Ставит зависимости из requirements.txt
+- Запускает тесты с покрытием
+
+Если хоть один тест упал, pipeline становится красным, и PR блокируется
+
+**Что это даёт:**
+
+- Ошибка ловится сразу, а не через неделю в production
+- Тесты прогноняются всегда, не нужно полагаться на "я запущу локально перед мержем"
+- Pull request показывает, прошли тесты или нет, ревьюер видит сразу
+- Покрытие отслеживается: если в PR добавлен код без тестов, это видно в отчёте.
