@@ -1,14 +1,20 @@
-import concurrent.futures as cf
+import asyncio
 
-def task(x):
-    return x * x
 
-# IO
-with cf.ThreadPoolExecutor(max_workers=4) as executor:
-    result = list(map(task, range(1, 9)))
-    print(result)
+async def background_log():
+    while True:
+        print("heartbeat")
+        await asyncio.sleep(1)
 
-# CPU
-with cf.ProcessPoolExecutor(max_workers=4) as executor:
-    result = list(map(task, range(1, 9)))
-    print(result)
+
+async def main():
+    task = asyncio.create_task(background_log())
+    
+    await asyncio.sleep(3)
+    
+    task.cancel()
+    
+    
+asyncio.run(
+    main()
+)
