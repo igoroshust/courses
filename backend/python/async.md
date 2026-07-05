@@ -1,3 +1,4 @@
+
 # Конкурентность, параллелизм, асинхронность
 
 Программе необходимо скачать 100 страниц с разных сайтов. Отправлять запросы по очереди – означает ждать ответ от сервера в течении 1-2 секунд, что увеличивает общее время (сумма всех ожиданий). Большую часть этого времени процессор простаивает, пока один запрос ждёт ответа – могут быть отправлены другие. Это и есть конкурентное выполнение.
@@ -462,6 +463,7 @@ asyncio.run(
 
 `gather()` runs all passed coroutines concurrently and returns a list of results. The total elapsed time is equal to the longest task, not the sum of all tasks. This is the essence of asyncio for I/O.
 
+`asyncio.gather()` runs all passed coroutines in parallel (within a single thread, concurrently) and waits until they all complete.
 
 #### Tasks: running coroutines in the background
 
@@ -489,5 +491,158 @@ asyncio.run(main())
 #### Key rules
 
 - Within an `async def` any long wait should be performed using await. A regular time.sleep(1) will block the entire event loop. Use `await asyncio.sleep(1)`.
-- If you want concurrent execution, use `asyncio.gather()` or `asyncio.create_task()`. Simply await in a row = sequentially.
+- If you want concurrent execution, use `asyncio.gather()` or `asyncio.create_task()`. SimplyIn await in a row = sequentially.
 - CPU-bound in asyncio stops everything. Is it taking too long? Move it to `run_in_executor` or multiprocessing.
+
+### asyncio.Queue: data exchange between coroutines
+
+In asyncio, all coroutines run in a single thread and can, in principle, share state directly. But for the producer-consumer pattern, a queue is more convenient:
+
+```Python
+import asyncio
+import time
+
+async def producer(q):
+    for i in range(5):
+        print(f'... We put item-{i} in q ...')
+        await q.put(f'item-{i}')
+        await asyncio.sleep(0.1)
+    await q.put(None)
+
+async def consumer(q):
+    while True:
+        item = await q.get()
+        if item is None:
+            break
+        print(f'Received {item}')
+
+async def main():
+    q = asyncio.Queue()
+  
+    await asyncio.gather(
+        producer(q),
+        consumer(q),
+    )
+
+if __name__ == "__main__":
+    # Time
+    start = time.perf_counter()
+    asyncio.run(main())
+    end = time.perf_counter()
+    print(f'Total: {end - start:.3f} sec')
+```
+
+The queue block on an empty get() or an overflowing put() (if maxsize is specified), but not the thread itself - it yields control to the event loop.
+
+#### asyncio.Lock: protecting shared state
+
+In asyncio, coroutine switching only occurs during await. If there's a critical section (where shared state is changed) between two await's, the switch won't intervene. But if there is an await inside the critical section, another coroutine can intervene.
+
+```Python
+import asyncio
+
+
+counter = 0
+lock = asyncio.Lock()
+
+async def increment():
+    global counter
+    async with lock:
+        current = counter
+        await asyncio.sleep(0.01)  # await within critical section
+        counter = current + 1
+    
+async def main():
+    await asyncio.gather(*(increment() for _ in range(100)))  # running 100 parallel tasks: increment(), increment(), increment() x 100.
+    print(counter)  # 100 - correct due to lock
+  
+asyncio.run(
+    main()
+)
+```
+
+Without lock, multiple coroutines would read the same current value, and the total would be less than 100. With async with lock, only one coroutine can be in the critical section at a time.
+
+In real asyncio code, locks are rarely needed because most variables live within a single coroutine. Lock is userful when multiple coroutines read/write a common structure or resource - for example, a shared active connection counter or cache. Besides Lock, there is asyncio.Event, asyncio.Semaphore, asyncio.Condition (the API copies threading, but operations are via await).
+
+#### Blocking code in asyncio: run_in_executor
+
+The main rule of asyncio: never call blocking functions directly `time.sleep(2)`, `requests.get`, heavy calculations - all of these will stop the event loop, and all other coroutines will freeze.
+
+But sometimes there's no other choice: you need an old synchronous library or CPU-bound computation. For this case, there's loop.run_in_executor(): run a blocking function in a separate thread (or process) while the event loop continues to run.
+
+![1783243485081](image/async/1783243485081.png)
+
+```Python
+import asyncio
+import time
+
+def blocking_io():
+    print("Blocking functions: sleep in 2s")
+    time.sleep(2)
+    return "done"
+
+async def main():
+    loop = asyncio.get_running_loop()
+    print('Run blocking task in executor')
+  
+    # None = executor in default (ThreadPoolExecutor)
+    future = loop.run_in_executor(None, blocking_io)
+  
+    # Until blocking tasks works, eveny loop is free
+    await asyncio.sleep(1)
+    print('Event loop is running parallel')
+  
+    result = await future
+    print(f'Result: {result}')
+  
+asyncio.run(main())
+```
+
+`run_in_executor(None, func, *args)` passes `func(*args)` to the standard ThreadPoolExecutor and returns a future that can be awaited.
+
+For CPU-bound code, you can pass ProcessPoolExecutor as the first argument - the function will go into a separate process with it's own GIL.
+
+
+#### Async iteration and Context Managers
+
+If an object collects data gradually (over a network, for example), it can be an asynchronous iterator: iterated using `async for`
+
+```Python
+async for line in aiohttp_response:
+  process(line)
+```
+
+If a resource needs to be opened and closed asynchronously (connection to a database), this is an asynchronous context manager via async with:
+
+```Python
+async with aiohttp.ClientSession() as session:
+    async with session.get(url) as response:
+        data = await response.json()
+```
+
+#### Comparison of three approaches
+
+![1783244555454](image/async/1783244555454.png)
+
+#### Selection rules:
+
+- Thousands of network connections, new projects -> asyncio
+- I/O in existing synchronous code without async libraries -> threading or ThreadPoolExecutor
+- Heavy computing -> multiprocessing or ProcessPoolExecutor
+- In one application, all of this is often combined: asyncio as the main layer + `run_in_executor` with a pool of threads/processes for blocking chunks.
+
+#### Several pitfalls
+
+- CPU-bound execution in asyncio kills the event loop. Use run_in_executor with ProcessPoolExecutor for heavy computatuins in async code.
+- Forgotten await: asyncio.sleep(1) without await does nothing (it creates a coroutine and throws it away). This is hightlighted in modern IDE's.
+- Mix sync/async: calling requests.get() (synchronously) in asyncio blocks everything. Use aiohttp / httpx for async-HTTP.
+- `if __name__ == "__main__"` is required for multiprocessing, otherwise processes will recursively create themselves.
+
+#### The main rule: choose the right tool for the task.
+
+- Thousands of network connections -> asyncio
+- I/O in legacy code -> threading
+- Mathematics and data processing -> multiprocessing
+
+In modern applications, the main program is most often written in asyncio, and CPU-heavy chunks are moved to the process pool via `run_in_executor`.
