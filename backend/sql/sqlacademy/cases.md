@@ -1,7 +1,54 @@
 ![1783092639860](image/cases/1783092639860.png)
 
-
 ![1782570590335](image/cases/1782570590335.png)
+
+
+
+# Создайте представление с именем "People", которое будет содержать список имен (first_name) и фамилий (last_name) всех студентов (Student) и преподавателей(Teacher)
+
+```SQL
+CREATE VIEW People AS 
+	SELECT first_name, last_name from Student
+	UNION
+	SELECT first_name, last_name from Teacher
+```
+
+# Вывести имена всех пользователей сервиса бронирования жилья по статусам "собственник"/"арендатор"
+
+```SQL
+WITH owners AS (
+  SELECT DISTINCT owner_id AS id FROM Rooms
+),
+tenants AS (
+  SELECT DISTINCT user_id AS id FROM Reservations
+)
+SELECT 
+	u.name,
+	(o.id IS NOT NULL)::int AS is_owner,
+	(t.id IS NOT NULL)::int AS is_tenant
+FROM Users u 
+LEFT JOIN owners o ON u.id = o.id 
+LEFT JOIN tenants t ON u.id = t.id;
+```
+
+# Удалить авиакомпании с наименьшим количеством перелётов
+
+```SQL
+DELETE FROM Company 
+WHERE Company.id IN (
+    SELECT company 
+    FROM Trip 
+    GROUP BY company 
+    HAVING COUNT(id) = (
+        SELECT MIN(count) 
+        FROM (
+            SELECT COUNT(id) AS count 
+            FROM Trip 
+            GROUP BY company
+        ) AS subquery
+    )
+);
+```
 
 # Товары, не купленные в 2005 году
 
@@ -119,7 +166,6 @@ select s.name as subjects from Subject s join Schedule sch on sch.subject = s.id
 select start_pair from Timepair 
 limit 1 offset 3
 ```
-
 
 # Время, проведённое в школе
 
