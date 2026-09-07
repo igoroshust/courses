@@ -6,6 +6,8 @@ SQL делится на:
 - DML (Data Manipulation Language) - работа с данными (SELECT, INSERT, UPDATE, DELETE)
 - DCL (Data Control Language) - управление доступом (GRANT, REVOKE, DENY)
 
+D C/M/D L
+
 **Создание таблицы books**
 
 ```sql

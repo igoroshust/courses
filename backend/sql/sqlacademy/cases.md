@@ -2,8 +2,6 @@
 
 ![1782570590335](image/cases/1782570590335.png)
 
-
-
 # Создайте представление с именем "People", которое будет содержать список имен (first_name) и фамилий (last_name) всех студентов (Student) и преподавателей(Teacher)
 
 ```SQL
@@ -48,6 +46,14 @@ WHERE Company.id IN (
         ) AS subquery
     )
 );
+```
+
+
+
+Вывести все пользовательские БД
+
+```SQL
+select datname from pg_database where datistemplate = false;
 ```
 
 # Товары, не купленные в 2005 году

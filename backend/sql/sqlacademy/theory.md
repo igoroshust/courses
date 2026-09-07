@@ -6,7 +6,7 @@
 create database dbname;
 ```
 
-Контроль создания бд
+Контроль создания бд  (вывод пользовательских )
 
 ```
 select datname from pg_database where datistemplate = false;
